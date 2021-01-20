@@ -199,7 +199,7 @@ if (process.env.RESET_DATABASE) {
       const newWine = new Wine({
         ...wineItem, 
         producer: producers.find(item = item.producer === wineItem.producer
-        )
+        ) //Why do I get item not defined?
       });
       await newWine.save()
     }) 
