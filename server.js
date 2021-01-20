@@ -63,7 +63,7 @@ const Wine = new mongoose.model('Wine', {
   },
   type: {
     type: String,
-    enum: ['Red', 'White', 'Orange', 'Rosé', 'Sparkling', 'Dessert'],
+    enum: ['red', 'white', 'orange', 'rosé', 'sparkling', 'dessert'],
     required: true,
   },
   grape: {
@@ -98,7 +98,7 @@ const Wine = new mongoose.model('Wine', {
 
 const Producer = new mongoose.model('Producer', {
   description: String, //<-- What is this 'description'?
-  name: {
+  producer: { //<-- This should be named same as in wines.json?
     type: String,
     required: true,
     minlength: [5, 'Producer name is too short. Minimum length is 5 characters.'],
@@ -114,49 +114,38 @@ const Producer = new mongoose.model('Producer', {
   },
 })
 
-// const User = new mongoose.model('User', {
-//   name: {
-//     type: String,
-//   },
-//   username: {
-//     type: String,
-//     unique: true,
-//     required: true
-//   },
-//   password: {
-//     type: String,
-//     required: true,
-//     minlength: 5
-//   },
-//   accessToken: {
-//     type: String,
-//     default: () => crypto.randomBytes(128).toString('hex')
-//   },
-  // isAdmin: { // create admin account via Postman? lecture 18/1 @14:04.
-  //   type: Boolean,
-  //   default: false
-  // },
-//   favoriteWines: [{ //Should I have favorites & ratings like this here, and should it be an array of objects?
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Wines' //Q&A 18/1: Not use a separate Favorite wines for this!
-//   }],
-//   ratedWines: [{
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'RatedWines'
-//   }]
-// })
-
-//Q&A 18/1: Should not be a separate model: I should reference to Wine-model when it comes to favorite wines.
-// const FavoriteWines = new mongoose.model('FavoriteWines', {
-//   description: String, // How should this model look like? It should save favorite wines to a user.
-//   userId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'User'
-//   },
-//   wineId: {
-//     type: mongoose.Schema.Types.ObjectId, 
-//   },
-// })
+const User = new mongoose.model('User', {
+  name: {
+    type: String,
+  },
+  username: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 5
+  },
+  accessToken: {
+    type: String,
+    default: () => crypto.randomBytes(128).toString('hex')
+  },
+  isAdmin: { // create admin account via Postman? lecture 18/1 @14:04.
+    type: Boolean,
+    default: false
+  },
+  favoriteWines: [{ //This should be an array of id:s of wines from 'Wine' (Q&A 18/1 @1:56)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wines' //Q&A 18/1: Not use a separate Favorite wines for this!
+  }],
+  ratedWines: [{ //This should be an array of objects: (wine id, comment id) from 'Wine'(???) (Q&A 18/1 @1:58)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wines'
+  }]
+})
+// Q&A @ 1:58: Comments/ratings should be a separate collection (that reference the Wine -model?).
 
 // const RatedWines = new mongoose.model('RatedWines', {
 //   // description: String, // How should this model look like? It should save rated wines to a user.
@@ -189,7 +178,8 @@ if (process.env.RESET_DATABASE) {
 
     producersData.forEach(async (item) => {
       const newProducer = new Producer(item);
-      //push each new producer to producers (array) & save:
+      
+      //push each new producer to array 'producers' & save:
       producers.push(newProducer)
       await newProducer.save();
     })
@@ -198,13 +188,14 @@ if (process.env.RESET_DATABASE) {
     wineData.forEach(async wineItem => {
       const newWine = new Wine({
         ...wineItem, 
-        producer: producers.find(item = item.producer === wineItem.producer
-        ) //Why do I get item not defined?
+        producer: producers.find(
+          (item) => item.producer === wineItem.producer
+        )
       });
-      await newWine.save()
+      await newWine.save();
     }) 
   }
-  populateDatabase()
+  populateDatabase();
 }
 
 ////// ROUTES / ENDPOINTS ////////
