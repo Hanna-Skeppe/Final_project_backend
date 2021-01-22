@@ -5,9 +5,10 @@ import mongoose from 'mongoose'
 
 import wineData from './data/wines.json'
 import producersData from './data/producers.json'
+import { Wine, Producer, User } from './models/models'
 
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/hanna-final-project"
-mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
 mongoose.Promise = Promise
 
 //start express server on 8080
@@ -31,144 +32,13 @@ app.use((req, res, next) => {
   }
 })
 
-//Models/Schemas:
-const Wine = new mongoose.model('Wine', {
-  name: {
-    type: String,
-    required: true,
-    minlength: [4, 'Name is too short'],
-    maxlength: [25, 'Name is too long']
-  },
-  country: {
-    type: String,
-    required: true,
-    minlength: [2, 'Country name is too short. Minimum length is 4 characters.'],
-    maxlength: [20, 'Country name is too long. Maximum length is 20 characters.']
-  },
-  origin: {
-    type: String,
-    required: true,
-    minlength: [5, 'Origin name is too short. Minimum length is 5 characters.'],
-    maxlength: [30, 'Origin name is too long. Maximum length is 30 characters.']
-  },
-  producer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Producer',
-  },
-  year: {
-    type: Number,
-    required: true,
-    minlength: [4, 'Specify year with four digits.'],
-    maxlength: [4, 'Specify year with four digits.']
-  },
-  type: {
-    type: String,
-    enum: ['red', 'white', 'orange', 'rosé', 'sparkling', 'dessert'],
-    required: true,
-  },
-  grape: {
-    type: String,
-    required: true,
-  },
-  goes_well_with: {
-    type: String,
-    required: false,
-  },
-  importer: {
-    type: String,
-    required: false,
-  },
-  image_url: {
-    type: String//How to store images and what to put here?
-  },
-  average_rating: {
-    type: Number
-  },
-  ratings_count: {
-    type: Number
-  },
-  // rated_wines: { // did Maks mean like this in Q&A 18/1???
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'RatedWines',
-  // },
-  text_reviews: { // Should this be text_reviews_count? Text reviews should be a model/schema?
-    type: Number
-  }
-})
-
-const Producer = new mongoose.model('Producer', {
-  description: String, //<-- What is this 'description'?
-  producer: { //<-- This should be named same as in wines.json?
-    type: String,
-    required: true,
-    minlength: [5, 'Producer name is too short. Minimum length is 5 characters.'],
-    maxlength: [40, 'Producer name is too long. Maximum length is 30 characters.']
-  },
-  country: {
-    type: String,
-    required: true
-  },
-  url: {
-    type: String, //??
-    required: false
-  },
-})
-
-const User = new mongoose.model('User', {
-  name: {
-    type: String,
-  },
-  username: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 5
-  },
-  accessToken: {
-    type: String,
-    default: () => crypto.randomBytes(128).toString('hex')
-  },
-  isAdmin: { // create admin account via Postman? lecture 18/1 @14:04.
-    type: Boolean,
-    default: false
-  },
-  favoriteWines: [{ //This should be an array of id:s of wines from 'Wine' (Q&A 18/1 @1:56)
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wines' //Q&A 18/1: Not use a separate Favorite wines for this!
-  }],
-  ratedWines: [{ //This should be an array of objects: (wine id, comment id) from 'Wine'(???) (Q&A 18/1 @1:58)
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wines'
-  }]
-})
-// Q&A @ 1:58: Comments/ratings should be a separate collection (that reference the Wine -model?).
-
-// const RatedWines = new mongoose.model('RatedWines', {
-//   // description: String, // How should this model look like? It should save rated wines to a user.
-//   // userId: {
-//   //   type: mongoose.Schema.Types.ObjectId, // relates to an object Id in User-model
-//   //   ref: 'User'
-//   // },
-//   wineId: {
-//     type: mongoose.Schema.Types.ObjectId, //Should this refer to Wine-model? Or should it just be type: String?
-//     ref: 'Wine'
-//   },
-//   rating: { // Where do I store the actual rating? Is it here in this model?
-//     type: Number
-//   }
-// })
+//Models/Schemas (moved to separate files)
 
 // See lecture 2 week 18 @ 6:13 on how to populate database with several collections with relations!
-
-//Populate/seed database: (RESET_DATABASE=true npm run dev)
-//POPULATE DATABASE with several collections:
+//POPULATE DATABASE with several collections: seed database: (RESET_DATABASE=true npm run dev)
 if (process.env.RESET_DATABASE) {
   const populateDatabase = async () => {
-    //Clear current content of collections:
+    //Clear current content:
     await Wine.deleteMany()
     await Producer.deleteMany()
 
@@ -234,17 +104,24 @@ app.get('/producers', async (req, res) =>{
     res.json(allProducers)
 })
 
+//THIS WORKS!!!
 //GET a single producer;
-app.get('producers/:id', async (req, res) => {
-  const producer = await Producer.findById(req.params.id)
-  res.json(producer)
+app.get('/producers/:id', async (req, res) => {
+  const { id } = req.params
+  const singleProducer = await Producer.findById({ _id: id })
+  if (singleProducer) {
+    res.json(singleProducer)
+  } else {
+    res.status(404).json({ error: `Could not find a producer with id: ${id}` })
+  }
 })
 
+//THIS WORKS!
 //GET all wines from a specific producer:
-app.get('producers/:id/wines', async (req, res) => {
+app.get('/producers/:id/wines', async (req, res) => {
   const producer = await Producer.findById(req.params.id)
-  const wines = await Book.find({ author: mongoose.Types.ObjectId(producer.id)})
-  res.json(books)
+  const winesFromProducer = await Wine.find({ producer: mongoose.Types.ObjectId(producer.id)})
+  res.json(winesFromProducer)
 })
 
 // Start the server
