@@ -1,107 +1,107 @@
 [
   {
-    "producer": "Domaine de l'Oubliée",
-    "country": "France",
+    "producer_name": "Domaine de l'Oubliée",
+    "producer_country": "France",
     "url": "http://dryckesbutiken.se/sv/producers/domaine-de-lobliee-bourgeil/"
   },
   {
-    "producer": "Domaine de l'Amandier",
-    "country": "France",
+    "producer_name": "Domaine de l'Amandier",
+    "producer_country": "France",
     "url": "http://dryckesbutiken.se/sv/producers/martin-textier-cotes-du-rhone/"
   },
   {
-    "producer": "Domaine du Possible",
-    "country": "France",
+    "producer_name": "Domaine du Possible",
+    "producer_country": "France",
     "url": "http://dryckesbutiken.se/sv/producers/domaine-du-possible-lansac/"
   },
   {
-    "producer": "Clos du tue Bouef",
-    "country": "France",
+    "producer_name": "Clos du tue Bouef",
+    "producer_country": "France",
     "url": "http://www.puzelat.com/home-page/"
   },
   {
-    "producer": "Frantz Saumon",
-    "country": "France",
+    "producer_name": "Frantz Saumon",
+    "producer_country": "France",
     "url": "http://dryckesbutiken.se/sv/producers/frantz-saumon/"
   },
   {
-    "producer": "Guillaume Vrignaud-Domaine Vrignaud",
-    "country": "France",
+    "producer_name": "Guillaume Vrignaud-Domaine Vrignaud",
+    "producer_country": "France",
     "url": "https://www.domaine-vrignaud.com/?lang=en"
   },
   {
-    "producer": "Conestabile della Staffa",
-    "country": "Italy",
+    "producer_name": "Conestabile della Staffa",
+    "producer_country": "Italy",
     "url": "https://vinnatur.se/bonde/vini-della-staffa/"
   },
   {
-    "producer": "La Grange aux Belles",
-    "country": "France",
+    "producer_name": "La Grange aux Belles",
+    "producer_country": "France",
     "url": "https://www.lagrangeauxbelles.eu/"
   },
   {
-    "producer": "La Grain de Sénevé",
-    "country": "France",
+    "producer_name": "La Grain de Sénevé",
+    "producer_country": "France",
     "url": "https://vinnatur.se/bonde/la-grain-de-seneve/"
   },
   {
-    "producer": "Les Deux Terres",
-    "country": "France",
+    "producer_name": "Les Deux Terres",
+    "producer_country": "France",
     "url": "https://vinnatur.se/bonde/les-deux-terres/"
   },
   {
-    "producer": "Rabasco",
-    "country": "Italy",
+    "producer_name": "Rabasco",
+    "producer_country": "Italy",
     "url": "http://www.agricolarabasco.it/en/"
   },
   {
-    "producer": "Barranco Oscuro",
-    "country": "Spain",
+    "producer_name": "Barranco Oscuro",
+    "producer_country": "Spain",
     "url": "http://www.barrancooscuro.com/"
   },
   {
-    "producer": "Philippe Pibarot",
-    "country": "France",
+    "producer_name": "Philippe Pibarot",
+    "producer_country": "France",
     "url": "https://vinnatur.se/bonde/domaine-pibarot/"
   },
   {
-    "producer": "Mas Coutelou",
-    "country": "France",
+    "producer_name": "Mas Coutelou",
+    "producer_country": "France",
     "url": "https://www.coutelou.fr/en/"
   },
   {
-    "producer": "Claude Buchot",
-    "country": "France",
+    "producer_name": "Claude Buchot",
+    "producer_country": "France",
     "url": "https://vinnatur.se/bonde/claudebuchot/"
   },
   {
-    "producer": "Anders Fredrik Steen",
-    "country": "France",
+    "producer_name": "Anders Fredrik Steen",
+    "producer_country": "France",
     "url": "https://www.andersfrederiksteen.com/"
   },
   {
-    "producer": "La Soeur Cadette",
-    "country": "France",
+    "producer_name": "La Soeur Cadette",
+    "producer_country": "France",
     "url": "https://www.instagram.com/la_soeur_cadette/"
   },
   {
-    "producer": "Domaine de Majas, Urban Deli",
-    "country": "France",
+    "producer_name": "Domaine de Majas, Urban Deli",
+    "producer_country": "France",
     "url": "https://domainedemajas.wixsite.com/domaine-de-majas"
   },
   {
-    "producer": "Le Coste di Gradoli",
-    "country": "Italy",
+    "producer_name": "Le Coste di Gradoli",
+    "producer_country": "Italy",
     "url": "https://vinnatur.se/bonde/le-coste/"
   },
   {
-    "producer": "Carussin",
-    "country": "Italy",
+    "producer_name": "Carussin",
+    "producer_country": "Italy",
     "url": "https://carussin.it/en/wines-of-piedmont/"
   },
   {
-    "producer": "Domaine la Bohème",
-    "country": "France",
+    "producer_name": "Domaine la Bohème",
+    "producer_country": "France",
     "url": "https://vinnatur.se/bonde/domaine-la-boheme/"
   }
 ]

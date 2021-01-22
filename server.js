@@ -59,7 +59,7 @@ if (process.env.RESET_DATABASE) {
       const newWine = new Wine({
         ...wineItem, 
         producer: producers.find(
-          (item) => item.producer === wineItem.producer
+          (item) => item.producer_name === wineItem.producer
         )
       });
       await newWine.save();
@@ -82,12 +82,28 @@ app.get('/', (req, res) => {
 })
 
 //GET All wines in database:
+//works to query on all the properties in the wine object and to combine them like:
+//http://localhost:8080/wines?type=white&country=France&origin=Loire
+
 app.get('/wines', async (req, res) => {
   // const queryParameters = req.query <-- don't need this? week 18 lecture 2 @34:00
-  // const { name, country, origin, producer, grape, type } = req.query  <-- don't need this?
+   const { name, country, origin, grape, type } = req.query // <-- don't need this?
   // see project mongo api on how to use regexp in the queries here
-  const allWines = await Wine.find(req.query).populate('producer') // can I do a query by name like this?
-  res.json(allWines)
+  const allWines = await Wine.find({ 
+    name: new RegExp(name, 'i'),
+    country: new RegExp(country, 'i'),
+    origin: new RegExp(origin, 'i'),
+    grape: new RegExp(grape, 'i'),
+    type: new RegExp(type, 'i'),
+  })
+    .populate('producer')
+    .sort({ name: 'asc'}) // can I do a query by name like this?
+  
+    if (allWines) {
+    res.json(allWines)
+  } else {
+    res.status(404).json({ error: 'Could not find wines' })
+  }
 })
 
 //GET single wine (single wine object): // Should this enpoint have :id and not name? And to find by name I use query-param?
@@ -98,6 +114,7 @@ app.get('/wines/:name', async (req, res) => {
   res.json(singleWine)
 })
 
+//This works!
 //GET all producers:
 app.get('/producers', async (req, res) =>{
     const allProducers = await Producer.find(req.query)
@@ -123,6 +140,9 @@ app.get('/producers/:id/wines', async (req, res) => {
   const winesFromProducer = await Wine.find({ producer: mongoose.Types.ObjectId(producer.id)})
   res.json(winesFromProducer)
 })
+
+//PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)???
+//use mongoose updateOne? Check $ Set operator in mongo DB also (see Q&A wed week 21)
 
 // Start the server
 app.listen(port, () => {

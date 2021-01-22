@@ -32,7 +32,7 @@ export const Wine = new mongoose.model('Wine', {
   },
   type: {
     type: String,
-    enum: ['red', 'white', 'orange', 'rosé', 'sparkling', 'dessert'],
+    enum: ['red', 'white', 'orange', 'rosé', 'sparkling'],
     required: true,
   },
   grape: {
@@ -71,13 +71,13 @@ export default Wine
 
 export const Producer = new mongoose.model('Producer', { // Should I add a picture to each producer?
   description: String,
-  producer: { 
+  producer_name: { 
     type: String,
     required: true,
     minlength: [5, 'Producer name is too short. Minimum length is 5 characters.'],
     maxlength: [40, 'Producer name is too long. Maximum length is 30 characters.']
   },
-  country: {
+  producer_country: {
     type: String,
     required: true
   },
