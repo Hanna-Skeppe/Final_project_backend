@@ -1,6 +1,9 @@
 import mongoose from 'mongoose'
+import { isEmail } from 'validator'
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
-//Make schemas of this instead??? Like project auth
+//Wine-model:
 export const Wine = new mongoose.model('Wine', {
   name: {
     type: String,
@@ -67,8 +70,8 @@ export const Wine = new mongoose.model('Wine', {
   //   type: Number
   // }
 })
-export default Wine
 
+//Producer-model:
 export const Producer = new mongoose.model('Producer', { // Should I add a picture to each producer?
   description: String,
   producer_name: { 
@@ -87,28 +90,31 @@ export const Producer = new mongoose.model('Producer', { // Should I add a pictu
   },
 })
 
-export const User = new mongoose.model('User', {
+//User-schema:
+export const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     minlength: [2, 'Name is too short. Minimum length is 2 characters.'],
-    maxlength: [20, 'Name is too long. Maximum length is 20 characters.']
+    maxlength: [30, 'Name is too long. Maximum length is 20 characters.']
   },
   surname: {
     type: String,
     required: true,
     minlength: [2, 'Surname is too short. Minimum length is 2 characters.'],
-    maxlength: [20, 'Surname is too long. Maximum length is 20 characters.']
+    maxlength: [30, 'Surname is too long. Maximum length is 20 characters.']
   },
-  username: {
+  email: {
     type: String,
     unique: true,
-    required: true
+    required: true,
+    trim: true,
+    validate: [isEmail, 'Invalid email'],
   },
   password: {
     type: String,
-    required: true,
-    minlength: 5
+    required: [true, 'Password is required'],
+    minlength: [5, 'Password must be minimum 5 characters'] 
   },
   accessToken: {
     type: String,
@@ -132,5 +138,20 @@ export const User = new mongoose.model('User', {
       ref: 'Wines'
     }
   }]
+}) // I could add comment option for user in ratedWines later on if there is time.
+
+// Middleware to hash password before new user is saved:
+userSchema.pre('save', async function (next) {
+  const user = this
+  
+  if (!user.isModified('password')) {
+    return next()
+  }
+  
+  const salt = bcrypt.genSaltSync()
+  user.password = bcrypt.hashSync(user.password, salt)
+  next()
 })
-// I could add comment option for user in ratedWines later on if there is time.
+
+//User-model:
+export const User = mongoose.model('User', userSchema)
