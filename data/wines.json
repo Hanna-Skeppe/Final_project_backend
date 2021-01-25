@@ -11,7 +11,7 @@
     "goes_well_with": "Raw beef, Chicken",
     "importer": "Dryckesbutiken",
     "average_price": 125,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569089/winepictures/mercie_la_vie_zxif1z.png",
     "average_rating": 3.8,
     "ratings_count": 123,
     "text_reviews": 0
@@ -28,7 +28,7 @@
     "goes_well_with": "Fried duck breast",
     "importer": "Dryckesbutiken",
     "average_price": 200,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569090/winepictures/preyna_i4onfu.webp",
     "average_rating": 4.2,
     "ratings_count": 11,
     "text_reviews": 0
@@ -45,7 +45,7 @@
     "goes_well_with": "Coq au vin, Falafel",
     "importer": "Dryckesbutiken",
     "average_price": 320,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569087/winepictures/Charivari_mx8u9q.png",
     "average_rating": 3.8,
     "ratings_count": 311,
     "text_reviews": 0
@@ -62,7 +62,7 @@
     "goes_well_with": "Apertif, Seafood, Goat cheese",
     "importer": "Dryckesbutiken",
     "average_price": 120,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569089/winepictures/P_tit_blanc_yzfgng.png",
     "average_rating": 3.7,
     "ratings_count": 11,
     "text_reviews": 0
@@ -79,7 +79,7 @@
     "goes_well_with": "Hot smoked salmon",
     "importer": "Dryckesbutiken",
     "average_price": 200,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569092/winepictures/vin_de_frantz_tvlsit.jpg",
     "average_rating": 3.8,
     "ratings_count": 794,
     "text_reviews": 0
@@ -96,7 +96,7 @@
     "goes_well_with": "Apertif Oysters, Whitefish roe",
     "importer": "Dryckesbutiken",
     "average_price": 170,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569090/winepictures/petit_chablis_ub2r1v.png",
     "average_rating": 3.9,
     "ratings_count": 406,
     "text_reviews": 0
@@ -113,7 +113,7 @@
     "goes_well_with": "Pasta, Fish Vegetarian, Apertif, Charcuterie",
     "importer": "Vin & Natur AB",
     "average_price": 200,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/il_bianco_qx77zf.png",
     "average_rating": 3.6,
     "ratings_count": 68,
     "text_reviews": 0
@@ -130,7 +130,7 @@
     "goes_well_with": "Salmon, Tuna fish, Vegetarian, Cheese",
     "importer": "Vin & Natur AB",
     "average_price": 210,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/fragile_ouumlu.png",
     "average_rating": 3.9,
     "ratings_count": 68,
     "text_reviews": 0
@@ -139,7 +139,7 @@
     "name": "Roue Libre",
     "country": "France",
     "origin": "Beaujolais",
-    "producer": "La Grain de Sénevé",
+    "producer": "Le Grain de Sénevé",
     "year": "2016",
     "type": "red",
     "grape": "Gamay",
@@ -147,7 +147,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 200,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569099/winepictures/roue_libre_nbggft.jpg",
     "average_rating": 3.6,
     "ratings_count": 14,
     "text_reviews": 0
@@ -164,7 +164,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 220,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569093/winepictures/zig_zag_x5jcum.png",
     "average_rating": 3.8,
     "ratings_count": 151,
     "text_reviews": 0
@@ -181,7 +181,7 @@
     "goes_well_with": "Beef, Lamb, Vegetarian",
     "importer": "Vin & Natur AB",
     "average_price": 155,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569092/winepictures/rosso_cancelli_ckslbr.png",
     "average_rating": 3.8,
     "ratings_count": 96,
     "text_reviews": 0
@@ -198,7 +198,7 @@
     "goes_well_with": "Pasta, Vegetarian, Cheese, Risotto, Salami, Ham, Grilled meat",
     "importer": "Vin & Natur AB",
     "average_price": 150,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569089/winepictures/la_travesia_degfxf.png",
     "average_rating": 3.5,
     "ratings_count": 44,
     "text_reviews": 0
@@ -215,7 +215,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 160,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569087/winepictures/cante_renard_sukl09.png",
     "average_rating": 3.6,
     "ratings_count": 65,
     "text_reviews": 0
@@ -232,7 +232,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 180,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569093/winepictures/7_rue_de_la_pompe_sd8s8v.png",
     "average_rating": 3.7,
     "ratings_count": 90,
     "text_reviews": 0
@@ -249,7 +249,7 @@
     "goes_well_with": "Pasta, Veal, Beef, Poultry",
     "importer": "Vin & Natur AB",
     "average_price": 180,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569095/winepictures/il_rosso_rvsazr.jpg",
     "average_rating": 3.9,
     "ratings_count": 191,
     "text_reviews": 0
@@ -266,7 +266,7 @@
     "goes_well_with": "Poultry, Cheese, Mushrooms",
     "importer": "Vin & Natur AB",
     "average_price": 200,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569087/winepictures/cotes_du_jura_au_chateau_jddbig.png",
     "average_rating": 3.9,
     "ratings_count": 81,
     "text_reviews": 0
@@ -283,7 +283,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 200,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/la_travesia_blanco2_kbryxe.png",
     "average_rating": 3.6,
     "ratings_count": 54,
     "text_reviews": 0
@@ -300,7 +300,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 240,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611565595/winepictures/Il_va_ca_va_jwlms5.jpg",
     "average_rating": 4.1,
     "ratings_count": 19,
     "text_reviews": 0
@@ -317,7 +317,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 115,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/don_t-throw-plastic-in-the-ocean-please-0x350_rkpqk5.png",
     "average_rating": 4.4,
     "ratings_count": 85,
     "text_reviews": 0
@@ -334,7 +334,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 150,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569089/winepictures/macon_villages_b5h7xz.png",
     "average_rating": 3.7,
     "ratings_count": 16,
     "text_reviews": 0
@@ -351,7 +351,7 @@
     "goes_well_with": "Raw beef, Charcuterie",
     "importer": "Wine Trade AB",
     "average_price": 514,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/blanc_II_fqybu4.jpg",
     "average_rating": 3.6,
     "ratings_count": 20,
     "text_reviews": 0
@@ -368,7 +368,7 @@
     "goes_well_with": "Pasta, Vegetarian, Charcuterie, Apertif, Fish",
     "importer": "Vin & Natur AB",
     "average_price": 218,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/bianchetto2_cdj6lo.png",
     "average_rating": 4.0,
     "ratings_count": 147,
     "text_reviews": 0
@@ -385,7 +385,7 @@
     "goes_well_with": "Poultry, Lamb, Veal, Beef",
     "importer": "Vin & Natur AB",
     "average_price": 128,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569093/winepictures/varetuo_ekhz19.png",
     "average_rating": 3.8,
     "ratings_count": 99,
     "text_reviews": 0
@@ -402,7 +402,7 @@
     "goes_well_with": "Pasta, Veal, Pork, Wild game meat",
     "importer": "Vin & Natur AB",
     "average_price": 150,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569093/winepictures/Barbera_d_Asti_Asinoi_tggofg.png",
     "average_rating": 3.5,
     "ratings_count": 524,
     "text_reviews": 0
@@ -419,7 +419,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 174,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569089/winepictures/Le_Mo%CC%82l_vrqkf5.png",
     "average_rating": 4.1,
     "ratings_count": 164,
     "text_reviews": 0
@@ -436,7 +436,7 @@
     "goes_well_with": "Charcuterie, Apertif",
     "importer": "Vin & Natur AB",
     "average_price": 183,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569088/winepictures/cotes_du_jura_poulsard_mfn2vw.png",
     "average_rating": 3.5,
     "ratings_count": 40,
     "text_reviews": 0
@@ -453,7 +453,7 @@
     "goes_well_with": "n/a",
     "importer": "Vin & Natur AB",
     "average_price": 204,
-    "image_url": "",
+    "image_url": "https://res.cloudinary.com/dtgjz72kj/image/upload/v1611569093/winepictures/zig_zag_x5jcum.png",
     "average_rating": 3.7,
     "ratings_count": 108,
     "text_reviews": 0

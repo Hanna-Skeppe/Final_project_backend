@@ -6,6 +6,10 @@ import mongoose from 'mongoose'
 import endpoints from "express-list-endpoints"
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
+import dotenv from 'dotenv'
+import cloudinaryFramework from 'cloudinary'
+import multer from 'multer'
+import cloudinaryStorage from 'multer-storage-cloudinary'
 
 import wineData from './data/wines.json'
 import producersData from './data/producers.json'
@@ -20,6 +24,9 @@ mongoose.connect(mongoUrl, {
 })
 mongoose.Promise = Promise
 
+//For setting upp .env (pictures):
+dotenv.config()
+
 //start express server on 8080
 const port = process.env.PORT || 8080
 const app = express()
@@ -30,6 +37,31 @@ const GET_ENDPOINTS_ERROR = 'Error: No endpoints found'
 // Middlewares to enable cors and json body parsing
 app.use(cors())
 app.use(bodyParser.json())
+
+//Setting up cloudinary for pictures in API:
+//Do I only need this if I am going to upload pictures on the frontend?
+const cloudinary = cloudinaryFramework.v2
+cloudinary.config({
+  cloud_name: 'dtgjz72kj',
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
+const storage = cloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'winepictures', //the folder in cloudinary
+    allowedFormats: ['jpg', 'png', 'WebP', 'gif'],
+    transformation: [{ width: 500, height: 500, crop: 'limit' }],
+  },
+})
+const parser = multer({ storage })
+
+// NOT SURE ABOUT IF/WHY I SHOULD INCLUDE THIS ENDPOINT! 
+// I don't want to post pictures, only include them in the API!
+// app.post('/winepictures', parser.single('image'), async (req, res) => {
+//   res.json({ imageUrl: req.file.path, imageId: req.file.filename })
+// })
 
 //Error if database is down:
 app.use((req, res, next) => {
@@ -51,7 +83,7 @@ const authenticateUser = async (req, res, next) => {
       throw USER_NOT_FOUND;
     }
     req.user = user;
-    next();
+    next(); // Calling the next-function allows the protected endpoint to continue execution
   } catch (err) {
     res.status(401).json({ message: 'User not fouund', errors: err.errors });
   }
@@ -288,12 +320,12 @@ app.post('/users/logout', async (req, res) => {
 })
 
 //This works in Postman!
-//GET: secure endpoint, protected bu authenticateUser (user-page: my_page).
+//GET: secure endpoint, protected bu authenticateUser (user-page: my_collection).
 //Looks up the user based on the access token stored in the header:
-//http://localhost:8080/users/600d56a220bee6056d5bbe1a/my_page
+//http://localhost:8080/users/600d56a220bee6056d5bbe1a/my_collection
 //And send value: Access token, key: Authorization in headers in Postman
-app.get('/users/:id/my_page', authenticateUser)
-app.get('/users/:id/my_page', async (req, res) => {
+app.get('/users/:id/my_collection', authenticateUser) // What should the path be? users/:id OR users/:id/wines OR users/:id/my_collection ????
+app.get('/users/:id/my_collection', async (req, res) => {
   try {
     const userId = req.params.id
     if (userId != req.user._id) {
@@ -310,7 +342,43 @@ app.get('/users/:id/my_page', async (req, res) => {
     })
   }
 })
+///    TO DO:     ///
+//endpoint for user to add a wine to favorites?? --> Q&A: Push a favourite wine into the array for the user on the protected endpoint. How???
+//endpoint for user to rate a wine??
+//(endpoint for user to add a new wine to the collection? NOT MVP!)
 
+//PUT: (UPDATE USER) Testing endpoint to add favorite for a logged-in user:
+// I want to update the user-model and add the selected wine to the favoriteWines-array for that user. How do I do that?
+app.put('/users/:id/my_collection', authenticateUser)
+app.put('/users/:id/my_collection', async (req, res) => {
+  try {
+    const selectedWine = await Wine.findById(
+      req.params.id
+      )
+    const addSelectedFavoriteToUser = await User.findOneAndUpdate({
+      favoriteWines: mongoose.Types.ObjectId(selectedWine) 
+    })
+    
+    if (addSelectedFavoriteToUser) {
+      res.status(200).json(addSelectedFavoriteToUser).save() //Save??
+    } else {
+      throw 'Could not add favorite wine to user. User must be logged in to add a favorite wine.'
+    }
+    // const userId = req.params.id
+    // const { favoriteWines, } = req.body
+    //const savedFavoriteWine = await User.findOneAndUpdate({ id: userId }, )
+  } catch (err) {
+    res.status(404).json({
+      message: 'Could not add favorite wine to user. User must be logged in to add a favorite wine.',
+      errors: err.errors
+    })
+  }
+})
+
+// const producer = await Producer.findById(req.params.id)
+//     const winesFromProducer = await Wine.find({ producer: mongoose.Types.ObjectId(producer.id) })
+
+//Testing endpoint to GET user-specific lists of favorites and/ or rated wines:
 
 
 // Start the server

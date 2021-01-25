@@ -72,7 +72,7 @@ export const Wine = new mongoose.model('Wine', {
 })
 
 //Producer-model:
-export const Producer = new mongoose.model('Producer', { // Should I add a picture to each producer?
+export const Producer = new mongoose.model('Producer', { 
   description: String,
   producer_name: { 
     type: String,
@@ -83,6 +83,10 @@ export const Producer = new mongoose.model('Producer', { // Should I add a pictu
   producer_country: {
     type: String,
     required: true
+  },
+  producer_image_url: {
+    type: String,
+    required: false
   },
   url: {
     type: String, 
@@ -138,7 +142,7 @@ export const userSchema = new mongoose.Schema({
       ref: 'Wines'
     }
   }]
-}) // I could add comment option for user in ratedWines later on if there is time.
+}) // I could add comment/review option for user later on if there is time.
 
 // Middleware to hash password before new user is saved:
 userSchema.pre('save', async function (next) {
