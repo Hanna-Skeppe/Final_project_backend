@@ -39,7 +39,7 @@ app.use(cors())
 app.use(bodyParser.json())
 
 //Setting up cloudinary for pictures in API:
-//Do I only need this if I am going to upload pictures on the frontend?
+//I only need this if I am going to upload pictures.
 const cloudinary = cloudinaryFramework.v2
 cloudinary.config({
   cloud_name: 'dtgjz72kj',
@@ -57,8 +57,8 @@ const storage = cloudinaryStorage({
 })
 const parser = multer({ storage })
 
-// NOT SURE ABOUT IF/WHY I SHOULD INCLUDE THIS ENDPOINT! 
-// I don't want to post pictures, only include them in the API!
+// NOT SURE ABOUT IF/WHY I SHOULD INCLUDE THIS ENDPOINT 
+// I don't want to post pictures (if I don't add a possibility to add a wine), only include them in the API.
 // app.post('/winepictures', parser.single('image'), async (req, res) => {
 //   res.json({ imageUrl: req.file.path, imageId: req.file.filename })
 // })
@@ -125,7 +125,6 @@ if (process.env.RESET_DATABASE) {
 
 ////// ROUTES / ENDPOINTS ////////
 // see: https://mongoosejs.com/docs/queries.html
-//Should I use if/else or try/catch for error-handling?
 
 // Start defining your routes here
 app.get('/', (req, res) => {
@@ -137,11 +136,9 @@ app.get('/', (req, res) => {
 })
 
 // GET All wines in database:
-// Query on: name, country, origin, grape, type
-// AND also sort on name, average rating and average price 
-// Examples: 
+// Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
+// Example: 
 // http://localhost:8080/wines?type=red&country=france&sort=average_price_desc
-// http://localhost:8080/wines?type=white&country=france&origin=loire
 
 app.get('/wines', async (req, res) => {
   // const queryParameters = req.query <-- don't need this? week 18 lecture 2 @34:00
@@ -183,9 +180,7 @@ app.get('/wines', async (req, res) => {
   }
 })
 
-
 //GET single wine by id (single wine object): 
-// should I change this to then / catch (week 18 lecture 2 @50 mins / ) or try / catch (week 19?)
 app.get('/wines/:id', async (req, res) => {
   const { id } = req.params
   try {
@@ -245,6 +240,7 @@ app.get('/producers/:id/wines', async (req, res) => {
   }
 })
 
+/// TO DO: ///
 //PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)???
 //use mongoose updateOne? Check $ Set operator in mongo DB also (see Q&A wed week 21)
 
@@ -344,26 +340,35 @@ app.get('/users/:id/my_collection', async (req, res) => {
 })
 ///    TO DO:     ///
 //endpoint for user to add a wine to favorites?? --> Q&A: Push a favourite wine into the array for the user on the protected endpoint. How???
-//endpoint for user to rate a wine??
-//(endpoint for user to add a new wine to the collection? NOT MVP!)
+//endpoint for user to rate a wine.
+//(endpoint for user to add a new wine to the database/API? NOT MVP!)
+//endpoint to GET users favorites and/ or rated wines.
 
-//PUT: (UPDATE USER) Testing endpoint to add favorite for a logged-in user:
+
+// THIS DOES NOT WORK:
+
+// PUT: (UPDATE USER: add a favorite wine to User) Testing endpoint to add favorite for a logged-in user:
 // I want to update the user-model and add the selected wine to the favoriteWines-array for that user. How do I do that?
 app.put('/users/:id/my_collection', authenticateUser)
 app.put('/users/:id/my_collection', async (req, res) => {
+  const userId = req.params.id
+
+  const { } = req.body // what to put here?
+  const selectedWine = await Wine // Find the actual wine the user wants to add. How?
+
   try {
-    const selectedWine = await Wine.findById(
-      req.params.id
+    await User.findOneAndUpdate(
+      { _id: userId }, 
+      {$push: {favoriteWines: selectedWine }} //Somehow push the selected wine into the favoriteWines-array
       )
-    const addSelectedFavoriteToUser = await User.findOneAndUpdate({
-      favoriteWines: mongoose.Types.ObjectId(selectedWine) 
-    })
-    
-    if (addSelectedFavoriteToUser) {
-      res.status(200).json(addSelectedFavoriteToUser).save() //Save??
-    } else {
-      throw 'Could not add favorite wine to user. User must be logged in to add a favorite wine.'
-    }
+      res.status(200).json(selectedWine) 
+    // const selectedWine = await new Wine({}).populate('favoriteWines').save()
+    // const addSelectedFavoriteToUser = await User.findOneAndUpdate({favoriteWines: mongoose.Types.ObjectId(selectedWine)})
+    // if (addSelectedFavoriteToUser) {
+    //   res.status(200).json(addSelectedFavoriteToUser).save() //Save??
+    // } else {
+    //   throw 'Could not add favorite wine to user. User must be logged in to add a favorite wine.'
+    // }
     // const userId = req.params.id
     // const { favoriteWines, } = req.body
     //const savedFavoriteWine = await User.findOneAndUpdate({ id: userId }, )
@@ -375,10 +380,9 @@ app.put('/users/:id/my_collection', async (req, res) => {
   }
 })
 
+//Unused:
 // const producer = await Producer.findById(req.params.id)
-//     const winesFromProducer = await Wine.find({ producer: mongoose.Types.ObjectId(producer.id) })
-
-//Testing endpoint to GET user-specific lists of favorites and/ or rated wines:
+// const winesFromProducer = await Wine.find({ producer: mongoose.Types.ObjectId(producer.id) })
 
 
 // Start the server

@@ -72,9 +72,9 @@ export const Wine = new mongoose.model('Wine', {
 })
 
 //Producer-model:
-export const Producer = new mongoose.model('Producer', { 
+export const Producer = new mongoose.model('Producer', {
   description: String,
-  producer_name: { 
+  producer_name: {
     type: String,
     required: true,
     minlength: [5, 'Producer name is too short. Minimum length is 5 characters.'],
@@ -89,7 +89,7 @@ export const Producer = new mongoose.model('Producer', {
     required: false
   },
   url: {
-    type: String, 
+    type: String,
     required: false
   },
 })
@@ -118,7 +118,7 @@ export const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [5, 'Password must be minimum 5 characters'] 
+    minlength: [5, 'Password must be minimum 5 characters']
   },
   accessToken: {
     type: String,
@@ -128,30 +128,34 @@ export const userSchema = new mongoose.Schema({
   //   type: Boolean,
   //   default: false
   // },
-  favoriteWines: [{ //This will show as an array of id:s of wines from 'Wine' in each user (Q&A 18/1 @1:56)
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wines'
-  }],
-  ratedWines: [{ //This will show as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
-    rating: {
-      type: Number,
-      enum: [1, 2, 3, 4, 5]
-    },
-    wineId: {
+  favoriteWines: [
+    { //This will show as an array of id:s of wines from 'Wine' in each user (Q&A 18/1 @1:56)
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Wines'
     }
-  }]
+  ],
+  ratedWines: [ //This will show as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
+    { 
+      rating: {
+        type: Number,
+        enum: [1, 2, 3, 4, 5]
+      },
+      wineId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Wines'
+      }
+    }
+  ],
 }) // I could add comment/review option for user later on if there is time.
 
 // Middleware to hash password before new user is saved:
 userSchema.pre('save', async function (next) {
   const user = this
-  
+
   if (!user.isModified('password')) {
     return next()
   }
-  
+
   const salt = bcrypt.genSaltSync()
   user.password = bcrypt.hashSync(user.password, salt)
   next()
