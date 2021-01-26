@@ -184,7 +184,7 @@ app.get('/wines', async (req, res) => {
 app.get('/wines/:id', async (req, res) => {
   const { id } = req.params
   try {
-    const singleWine = await Wine.findOne({ _id: id })
+    const singleWine = await Wine.findById({ _id: id })
     res.json(singleWine)
   } catch (err) {
     res.status(404).json({
@@ -194,14 +194,12 @@ app.get('/wines/:id', async (req, res) => {
   }
 })
 
-//This works!
 //GET all producers:
 app.get('/producers', async (req, res) => {
   const allProducers = await Producer.find(req.query)
   res.json(allProducers)
 })
 
-//THIS Works!
 //GET a single producer;
 app.get('/producers/:id', async (req, res) => {
   const { id } = req.params
@@ -220,7 +218,7 @@ app.get('/producers/:id', async (req, res) => {
   }
 })
 
-//THIS WORKS!
+
 //GET all wines from a specific producer:
 //EXAMPLE: http://localhost:8080/producers/600d890d1a4d7a09c404308/wines
 app.get('/producers/:id/wines', async (req, res) => {
@@ -247,7 +245,6 @@ app.get('/producers/:id/wines', async (req, res) => {
 ////// USER-ENDPOINTS /////////
 //////////////////////////////
 
-//This works in Postman!
 //POST: registration endpoint (creates user)
 app.post('/users', async (req, res) => {
   try {
@@ -272,7 +269,6 @@ app.post('/users', async (req, res) => {
   }
 })
 
-//This works in Postman!
 //POST: login user
 app.post('/sessions', async (req, res) => {
   try {
@@ -286,7 +282,6 @@ app.post('/sessions', async (req, res) => {
         userId: updatedUser._id,
         accessToken: updatedUser.accessToken,
         name: updatedUser.name,
-        //Are these two  (id & accesstoken) enough here? Does name have to be here? Or email?
       })
     } else {
       throw 'User not found'
@@ -299,7 +294,6 @@ app.post('/sessions', async (req, res) => {
   }
 })
 
-//This works in Postman!
 // POST: logout user
 app.post('/users/logout', authenticateUser)
 app.post('/users/logout', async (req, res) => {
@@ -314,23 +308,23 @@ app.post('/users/logout', async (req, res) => {
     })
   }
 })
+///    TO DO:     ///
+//endpoint for user to rate a wine.
+//(endpoint to add a new wine to the database/API? NOT MVP!)
+//endpoint to GET users favorites and/ or rated wines.
 
-//This works in Postman!
-//GET: secure endpoint, protected bu authenticateUser (user-page: my_collection).
-//Looks up the user based on the access token stored in the header:
-//http://localhost:8080/users/600d56a220bee6056d5bbe1a/my_collection
-//And send value: Access token, key: Authorization in headers in Postman
-app.get('/users/:id/my_collection', authenticateUser) // What should the path be? users/:id OR users/:id/wines OR users/:id/my_collection ????
-app.get('/users/:id/my_collection', async (req, res) => {
+//TO DO:
+//GET: endpoint to get users saved favoriteWines
+//Headers in Postman: key: Authorization, value: Access token. 
+app.get('/users/:id/favorites', authenticateUser)
+app.get('/users/:id/favorites', async (req, res) => {
   try {
     const userId = req.params.id
     if (userId != req.user._id) {
       throw 'Access denied'
     }
-    const userPageMessage = `Hello ${req.user.name}! This is your wine-collection.`
+    const userPageMessage = `Hello ${req.user.name}! This is a secret message.`
     res.status(200).json(userPageMessage)
-    //How do I handle if I want to show more info here than just a message?
-    // If all of the info on the user-page shall be protected by login?
   } catch (err) {
     res.status(403).json({
       message: 'Access denied',
@@ -338,52 +332,30 @@ app.get('/users/:id/my_collection', async (req, res) => {
     })
   }
 })
-///    TO DO:     ///
-//endpoint for user to add a wine to favorites?? --> Q&A: Push a favourite wine into the array for the user on the protected endpoint. How???
-//endpoint for user to rate a wine.
-//(endpoint for user to add a new wine to the database/API? NOT MVP!)
-//endpoint to GET users favorites and/ or rated wines.
 
-
-// THIS DOES NOT WORK:
-
-// PUT: (UPDATE USER: add a favorite wine to User) Testing endpoint to add favorite for a logged-in user:
-// I want to update the user-model and add the selected wine to the favoriteWines-array for that user. How do I do that?
-app.put('/users/:id/my_collection', authenticateUser)
-app.put('/users/:id/my_collection', async (req, res) => {
-  const userId = req.params.id
-
-  const { } = req.body // what to put here?
-  const selectedWine = await Wine // Find the actual wine the user wants to add. How?
+// PUT: endpoint to add favorite wine for a logged-in user:
+// UPDATES the user and adds the selected wine to the favoriteWines-array for that user.
+app.put('/users/:id/favorites', authenticateUser) 
+app.put('/users/:id/favorites', async (req, res) => {
+  const { id } = req.params 
 
   try {
-    await User.findOneAndUpdate(
-      { _id: userId }, 
-      {$push: {favoriteWines: selectedWine }} //Somehow push the selected wine into the favoriteWines-array
+    const { _id } = req.body
+    //console.log('wine:', typeof _id, _id, 'user id:', id)
+    const selectedWine = await Wine.findById( _id ) // Find the wine the user wants to add. 
+    //console.log('selectedWine', selectedWine)
+    await User.updateOne(
+      { _id: id }, 
+      {$push: {favoriteWines: selectedWine }} //push the selected wine into the favoriteWines-array
       )
       res.status(200).json(selectedWine) 
-    // const selectedWine = await new Wine({}).populate('favoriteWines').save()
-    // const addSelectedFavoriteToUser = await User.findOneAndUpdate({favoriteWines: mongoose.Types.ObjectId(selectedWine)})
-    // if (addSelectedFavoriteToUser) {
-    //   res.status(200).json(addSelectedFavoriteToUser).save() //Save??
-    // } else {
-    //   throw 'Could not add favorite wine to user. User must be logged in to add a favorite wine.'
-    // }
-    // const userId = req.params.id
-    // const { favoriteWines, } = req.body
-    //const savedFavoriteWine = await User.findOneAndUpdate({ id: userId }, )
   } catch (err) {
     res.status(404).json({
       message: 'Could not add favorite wine to user. User must be logged in to add a favorite wine.',
-      errors: err.errors
+      errors: { message: err.message, error: err }
     })
   }
 })
-
-//Unused:
-// const producer = await Producer.findById(req.params.id)
-// const winesFromProducer = await Wine.find({ producer: mongoose.Types.ObjectId(producer.id) })
-
 
 // Start the server
 app.listen(port, () => {
