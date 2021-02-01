@@ -23,10 +23,10 @@ export const Wine = new mongoose.model('Wine', {
     minlength: [5, 'Origin name is too short. Minimum length is 5 characters.'],
     maxlength: [30, 'Origin name is too long. Maximum length is 30 characters.']
   },
-  producer: {
+  producer: { // Should I change producer to array? Did not work when I tried
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Producer',
-  },
+  }, 
   year: {
     type: Number,
     required: true,

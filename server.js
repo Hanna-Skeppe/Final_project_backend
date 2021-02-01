@@ -138,7 +138,7 @@ app.get('/', (req, res) => {
 // GET All wines in database:
 // Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
 // Example: 
-// http://localhost:8080/wines?type=red&country=france&sort=average_price_desc
+// http://localhost:8080/wines?type=red&country=france&sort=average_price_asc
 
 app.get('/wines', async (req, res) => {
   // const queryParameters = req.query <-- don't need this? week 18 lecture 2 @34:00
@@ -282,7 +282,9 @@ app.post('/sessions', async (req, res) => {
         userId: updatedUser._id,
         accessToken: updatedUser.accessToken,
         name: updatedUser.name,
+        surname: updatedUser.surname
       })
+
     } else {
       throw 'User not found'
     }
