@@ -138,7 +138,7 @@ app.get('/', (req, res) => {
 // GET All wines in database:
 // Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
 // Example: 
-// http://localhost:8080/wines?type=red&country=france&sort=average_price_asc
+// http://localhost:8080/wines?query=france&sort=average_price_asc
 
 app.get('/wines', async (req, res) => {
   
@@ -240,10 +240,6 @@ app.get('/producers/:id/wines', async (req, res) => {
   }
 })
 
-/// TO DO: ///
-//PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)???
-//use mongoose updateOne? Check $ Set operator in mongo DB also (see Q&A wed week 21)
-
 ////// USER-ENDPOINTS /////////
 //////////////////////////////
 
@@ -312,12 +308,7 @@ app.post('/users/logout', async (req, res) => {
     })
   }
 })
-///    TO DO:     ///
-//endpoint for user to rate a wine.
-//(endpoint to add a new wine to the database/API? NOT MVP!)
-//endpoint to GET users favorites and/ or rated wines.
 
-//TO DO:
 //GET: endpoint to get users saved favoriteWines
 //Headers in Postman: key: Authorization, value: Access token. 
 app.get('/users/:id/favorites', authenticateUser)
@@ -327,12 +318,13 @@ app.get('/users/:id/favorites', async (req, res) => {
     if (userId != req.user._id) {
       throw 'Access denied'
     }
-    const userPageMessage = `Hello ${req.user.name}! This is a secret message.`
-    res.status(200).json(userPageMessage)
+    const userFavoritesArray = await req.user.favoriteWines //--> shows array of added wines (wine-id:s)
+    const userFavoriteWines = await Wine.find( {_id: userFavoritesArray} ) // --> outputs the whole wine-objects in user favorites!
+    res.status(200).json(userFavoriteWines)
   } catch (err) {
     res.status(403).json({
-      message: 'Access denied',
-      errors: { error: 'Access denied' }
+      message: 'Could not get favorite wines. User must be logged in to see favorite wines.',
+      errors: { message: err.message, error: err }
     })
   }
 })
@@ -355,7 +347,7 @@ app.put('/users/:id/favorites', async (req, res) => {
       res.status(200).json(selectedWine) 
   } catch (err) {
     res.status(404).json({
-      message: 'Could not add favorite wine to user. User must be logged in to add a favorite wine.',
+      message: 'Could not add wine. User must be logged in to add a favorite wine.',
       errors: { message: err.message, error: err }
     })
   }
@@ -365,3 +357,10 @@ app.put('/users/:id/favorites', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
+
+///    TO DO:     ///
+//endpoint for user to rate a wine.
+//endpoint to GET users rated wines.
+//(endpoint to add a new wine to the database/API? NOT MVP!)
+//PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)???
+//use mongoose updateOne? Check $ Set operator in mongo DB also (see Q&A wed week 21)
