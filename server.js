@@ -134,15 +134,15 @@ app.get('/', (req, res) => {
     res.status(404).send({ error: GET_ENDPOINTS_ERROR })
   }
 })
-
+// see week 17 lecture 1 on filtering
 // GET All wines in database:
 // Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
 // Example: 
 // http://localhost:8080/wines?type=red&country=france&sort=average_price_asc
 
 app.get('/wines', async (req, res) => {
-  // const queryParameters = req.query <-- don't need this? week 18 lecture 2 @34:00
-  const { name, country, origin, grape, type } = req.query 
+  
+  const { query } = req.query
   const sort = req.query.sort
 
   const sortedWines = sort => {
@@ -164,11 +164,13 @@ app.get('/wines', async (req, res) => {
   }
   
   const allWines = await Wine.find({
-    name: new RegExp(name, 'i'), // Makes queries case-insensitive. Is there an easier way to specify this?
-    country: new RegExp(country, 'i'),
-    origin: new RegExp(origin, 'i'),
-    grape: new RegExp(grape, 'i'),
-    type: new RegExp(type, 'i')
+    $or: [ 
+    { name: new RegExp(query, 'i') }, // Makes queries case-insensitive. 
+    { country: new RegExp(query, 'i') },
+    { origin: new RegExp(query, 'i') },
+    { grape: new RegExp(query, 'i') },
+    { type: new RegExp(query, 'i') }
+    ]
   })
     .populate('producer')
     .sort(sortedWines(sort)) 
