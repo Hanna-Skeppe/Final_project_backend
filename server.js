@@ -294,7 +294,10 @@ app.post('/sessions', async (req, res) => {
   }
 })
 
-// POST: logout user
+// POST: logout user (this produces an error 401 'unauthorized' in the console (why? is it because accesstoken is removed before checked?), 
+// but user is still logged out even though the fetch don't seem to work because I remove accesstoken etc. in frontend.
+// So do I really need an endpoint in the backend to logout? Or is it enought if I remove accesstoken etc. in frontend?)
+// In Postman it works to logout with accesstoken in headers though...
 app.post('/users/logout', authenticateUser)
 app.post('/users/logout', async (req, res) => {
   try {
@@ -319,14 +322,34 @@ app.get('/users/:id/favorites', async (req, res) => {
       throw 'Access denied'
     }
     const userFavoritesArray = await req.user.favoriteWines //--> shows array of added wines (wine-id:s)
-    const userFavoriteWines = await Wine.find( {_id: userFavoritesArray} ) // --> outputs the whole wine-objects in user favorites!
-    res.status(200).json(userFavoriteWines)
+    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }) // --> outputs the whole wine-objects in user favorites!
+    res.status(200).json(getCurrentFavoriteWines)
   } catch (err) {
     res.status(403).json({
       message: 'Could not get favorite wines. User must be logged in to see favorite wines.',
       errors: { message: err.message, error: err }
     })
   }
+})
+
+// DELETE-ENDPOINT: for logged in user to remove a favorite wine
+app.delete('/users/:id/favorites', authenticateUser)
+app.delete('/users/:id/favorites', async (req, res) => {
+  try {
+    const userId = req.params.id
+    if (userId != req.user.id) {
+      throw 'Access denied'
+    }
+    const userFavoritesArray = await req.user.favoriteWines
+    const updatedFavoriteWines = await Wine.findOneAndDelete({ _id: userFavoritesArray})
+    res.status(200).json(updatedFavoriteWines)
+  } catch (err) {
+    res.status(403).json({
+      message: 'Could not perform request to delete favorite wine. User must be logged in to do this.',
+      errors: { message: err.message, error: err }
+    })
+  }
+
 })
 
 // PUT: endpoint to add favorite wine for a logged-in user:
@@ -353,12 +376,15 @@ app.put('/users/:id/favorites', async (req, res) => {
   }
 })
 
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
 
 ///    TO DO:     ///
+// Delete-endpoint for user to delete a favorite wine.
 //endpoint for user to rate a wine.
 //endpoint to GET users rated wines.
 //(endpoint to add a new wine to the database/API? NOT MVP!)
