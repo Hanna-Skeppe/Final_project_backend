@@ -334,6 +334,8 @@ app.get('/users/:id/favorites', async (req, res) => {
 })
 
 // DELETE-ENDPOINT: for logged in user to remove a favorite wine
+// Works to delete a wine in Postman now 
+//(but button on winecard in frontend don't work)
 app.delete('/users/:id/favorites', authenticateUser)
 app.delete('/users/:id/favorites', async (req, res) => {
   const { id } = req.params 
@@ -342,22 +344,18 @@ app.delete('/users/:id/favorites', async (req, res) => {
     if (userId != req.user.id) {
       throw 'Access denied'
     }
-    const { _id } = req.body
-    // console.log('wine:', typeof _id, _id, 'user id:', id)
+    const { _id } = req.body 
     const selectedWine = await Wine.findById(_id) // Find the wine the user wants to remove
-    // console.log('selectedWine', selectedWine)
-
-    const updatedFavoriteWines = await User.updateOne(
+    console.log('selectedWine', selectedWine) // this prints the selected wine to delete
+    await User.updateOne(
       {_id: id },
-      { $pull: { favoriteWines: { $in: [ selectedWine ] }}}
+      { $pull: { favoriteWines: { $in: [ selectedWine ] }}} // update user favoriteWines
     ) 
-   
-
-    // const userFavoritesArray = await req.user.favoriteWines
-    // const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer')// this actually deletes a wine from wines
-    res.status(200).json(updatedFavoriteWines)
-    console.log(updatedFavoriteWines)
-    console.log(favoriteWines)
+    const userFavoritesArray = await req.user.favoriteWines
+    console.log('userFavoritesArray', userFavoritesArray)
+    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer') //this prints all favorites BEFORE delete. Why?
+    res.status(200).json(getCurrentFavoriteWines) // What am I supposed to send in the response here?
+    console.log('getCurrentFavoriteWines',getCurrentFavoriteWines)
   } catch (err) {
     res.status(403).json({
       message: 'Could not perform request to delete favorite wine. User must be logged in to do this.',
