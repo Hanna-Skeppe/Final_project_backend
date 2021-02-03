@@ -323,7 +323,7 @@ app.get('/users/:id/favorites', async (req, res) => {
       throw 'Access denied'
     }
     const userFavoritesArray = await req.user.favoriteWines //--> shows array of added wines (wine-id:s)
-    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer') // --> outputs the whole wine-objects in user favorites!
+    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer') // --> outputs the whole wine-objects in user favorites.
     res.status(200).json(getCurrentFavoriteWines)
   } catch (err) {
     res.status(403).json({
@@ -334,8 +334,7 @@ app.get('/users/:id/favorites', async (req, res) => {
 })
 
 // DELETE-ENDPOINT: for logged in user to remove a favorite wine
-// Works to delete a wine in Postman now 
-//(but button on winecard in frontend don't work)
+// UPDATES the user and removes the selected wine from the favoriteWines-array for that user.
 app.delete('/users/:id/favorites', authenticateUser)
 app.delete('/users/:id/favorites', async (req, res) => {
   const { id } = req.params 
@@ -345,17 +344,14 @@ app.delete('/users/:id/favorites', async (req, res) => {
       throw 'Access denied'
     }
     const { _id } = req.body 
+    console.log(_id)
     const selectedWine = await Wine.findById(_id) // Find the wine the user wants to remove
     console.log('selectedWine', selectedWine) // this prints the selected wine to delete
     await User.updateOne(
       {_id: id },
-      { $pull: { favoriteWines: { $in: [ selectedWine ] }}} // update user favoriteWines
-    ) 
-    const userFavoritesArray = await req.user.favoriteWines
-    console.log('userFavoritesArray', userFavoritesArray)
-    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer') //this prints all favorites BEFORE delete. Why?
-    res.status(200).json(getCurrentFavoriteWines) // What am I supposed to send in the response here?
-    console.log('getCurrentFavoriteWines',getCurrentFavoriteWines)
+      { $pull: { favoriteWines: { $in: [ selectedWine ] }}} // update user favoriteWines after delete
+    )
+    res.status(200).json(selectedWine) 
   } catch (err) {
     res.status(403).json({
       message: 'Could not perform request to delete favorite wine. User must be logged in to do this.',
@@ -388,15 +384,12 @@ app.put('/users/:id/favorites', async (req, res) => {
   }
 })
 
-
-
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
 
 ///    TO DO:     ///
-// Delete-endpoint for user to delete a favorite wine.
 //endpoint for user to rate a wine.
 //endpoint to GET users rated wines.
 //(endpoint to add a new wine to the database/API? NOT MVP!)
