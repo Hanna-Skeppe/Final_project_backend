@@ -316,13 +316,14 @@ app.post('/users/logout', async (req, res) => {
 //Headers in Postman: key: Authorization, value: Access token. 
 app.get('/users/:id/favorites', authenticateUser)
 app.get('/users/:id/favorites', async (req, res) => {
+  
   try {
     const userId = req.params.id
     if (userId != req.user._id) {
       throw 'Access denied'
     }
     const userFavoritesArray = await req.user.favoriteWines //--> shows array of added wines (wine-id:s)
-    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }) // --> outputs the whole wine-objects in user favorites!
+    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer') // --> outputs the whole wine-objects in user favorites!
     res.status(200).json(getCurrentFavoriteWines)
   } catch (err) {
     res.status(403).json({
@@ -335,21 +336,34 @@ app.get('/users/:id/favorites', async (req, res) => {
 // DELETE-ENDPOINT: for logged in user to remove a favorite wine
 app.delete('/users/:id/favorites', authenticateUser)
 app.delete('/users/:id/favorites', async (req, res) => {
+  const { id } = req.params 
   try {
     const userId = req.params.id
     if (userId != req.user.id) {
       throw 'Access denied'
     }
-    const userFavoritesArray = await req.user.favoriteWines
-    const updatedFavoriteWines = await Wine.findOneAndDelete({ _id: userFavoritesArray})
+    const { _id } = req.body
+    // console.log('wine:', typeof _id, _id, 'user id:', id)
+    const selectedWine = await Wine.findById(_id) // Find the wine the user wants to remove
+    // console.log('selectedWine', selectedWine)
+
+    const updatedFavoriteWines = await User.updateOne(
+      {_id: id },
+      { $pull: { favoriteWines: { $in: [ selectedWine ] }}}
+    ) 
+   
+
+    // const userFavoritesArray = await req.user.favoriteWines
+    // const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer')// this actually deletes a wine from wines
     res.status(200).json(updatedFavoriteWines)
+    console.log(updatedFavoriteWines)
+    console.log(favoriteWines)
   } catch (err) {
     res.status(403).json({
       message: 'Could not perform request to delete favorite wine. User must be logged in to do this.',
       errors: { message: err.message, error: err }
     })
   }
-
 })
 
 // PUT: endpoint to add favorite wine for a logged-in user:
