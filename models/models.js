@@ -23,7 +23,7 @@ export const Wine = new mongoose.model('Wine', {
     minlength: [5, 'Origin name is too short. Minimum length is 5 characters.'],
     maxlength: [30, 'Origin name is too long. Maximum length is 30 characters.']
   },
-  producer: { // Should I change producer to array? Did not work when I tried
+  producer: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Producer',
   }, 
@@ -58,7 +58,7 @@ export const Wine = new mongoose.model('Wine', {
     type: Number
   },
   image_url: {
-    type: String //How to store images and what to put here?
+    type: String 
   },
   average_rating: {
     type: Number
@@ -134,7 +134,7 @@ export const userSchema = new mongoose.Schema({
       ref: 'Wines'
     }
   ],
-  ratedWines: [ //This will show as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
+  ratedWines: [ //NOT IMPLEMENTED YET! This will show as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
     { 
       rating: {
         type: Number,
@@ -146,7 +146,7 @@ export const userSchema = new mongoose.Schema({
       }
     }
   ],
-}) // I could add comment/review option for user later on if there is time.
+}) 
 
 // Middleware to hash password before new user is saved:
 userSchema.pre('save', async function (next) {

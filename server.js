@@ -2,14 +2,13 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import mongoose from 'mongoose'
-//import { isEmail } from 'validator'
 import endpoints from "express-list-endpoints"
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
-import dotenv from 'dotenv'
-import cloudinaryFramework from 'cloudinary'
-import multer from 'multer'
-import cloudinaryStorage from 'multer-storage-cloudinary'
+// import dotenv from 'dotenv'
+// import cloudinaryFramework from 'cloudinary'
+// import multer from 'multer'
+// import cloudinaryStorage from 'multer-storage-cloudinary'
 
 import wineData from './data/wines.json'
 import producersData from './data/producers.json'
@@ -25,9 +24,9 @@ mongoose.connect(mongoUrl, {
 mongoose.Promise = Promise
 
 //For setting upp .env (pictures):
-dotenv.config()
+// dotenv.config()
 
-//start express server on 8080
+//start express server 
 const port = process.env.PORT || 8080
 const app = express()
 
@@ -38,24 +37,25 @@ const GET_ENDPOINTS_ERROR = 'Error: No endpoints found'
 app.use(cors())
 app.use(bodyParser.json())
 
+// Might use this code later if I add option to post picture (when user suggest a new wine to be added)
 //Setting up cloudinary for pictures in API:
 //I only need this if I am going to upload pictures.
-const cloudinary = cloudinaryFramework.v2
-cloudinary.config({
-  cloud_name: 'dtgjz72kj',
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-})
+// const cloudinary = cloudinaryFramework.v2
+// cloudinary.config({
+//   cloud_name: 'dtgjz72kj',
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET
+// })
 
-const storage = cloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'winepictures', //the folder in cloudinary
-    allowedFormats: ['jpg', 'png', 'WebP', 'gif'],
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
-  },
-})
-const parser = multer({ storage })
+// const storage = cloudinaryStorage({
+//   cloudinary,
+//   params: {
+//     folder: 'winepictures', //the folder in cloudinary
+//     allowedFormats: ['jpg', 'png', 'WebP', 'gif'],
+//     transformation: [{ width: 500, height: 500, crop: 'limit' }],
+//   },
+// })
+// const parser = multer({ storage })
 
 // NOT SURE ABOUT IF/WHY I SHOULD INCLUDE THIS ENDPOINT 
 // I don't want to post pictures (if I don't add a possibility to add a wine), only include them in the API.
@@ -109,7 +109,6 @@ if (process.env.RESET_DATABASE) {
       await newProducer.save();
     })
 
-    //(for reference: code from week 18 lecture 2)
     wineData.forEach(async wineItem => {
       const newWine = new Wine({
         ...wineItem,
@@ -124,9 +123,7 @@ if (process.env.RESET_DATABASE) {
 }
 
 ////// ROUTES / ENDPOINTS ////////
-// see: https://mongoosejs.com/docs/queries.html
-
-// Start defining your routes here
+// ROOT (endpoints):
 app.get('/', (req, res) => {
   if (res) {
     res.status(200).send(endpoints(app))
@@ -134,12 +131,12 @@ app.get('/', (req, res) => {
     res.status(404).send({ error: GET_ENDPOINTS_ERROR })
   }
 })
-// see week 17 lecture 1 on filtering
+
 // GET All wines in database:
 // Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
 // Example: 
-// http://localhost:8080/wines?query=france&sort=average_price_asc
-
+// http://localhost:8080/wines?query=white&sort=average_price_asc
+// see week 17 lecture 1 on filtering
 app.get('/wines', async (req, res) => {
   
   const { query } = req.query
@@ -165,7 +162,7 @@ app.get('/wines', async (req, res) => {
   
   const allWines = await Wine.find({
     $or: [ 
-    { name: new RegExp(query, 'i') }, // Makes queries case-insensitive. 
+    { name: new RegExp(query, 'i') }, // queries case-insensitive. 
     { country: new RegExp(query, 'i') },
     { origin: new RegExp(query, 'i') },
     { grape: new RegExp(query, 'i') },
@@ -220,9 +217,7 @@ app.get('/producers/:id', async (req, res) => {
   }
 })
 
-
 //GET all wines from a specific producer:
-//EXAMPLE: http://localhost:8080/producers/600d890d1a4d7a09c404308/wines
 app.get('/producers/:id/wines', async (req, res) => {
   try {
     const producer = await Producer.findById(req.params.id)
@@ -241,9 +236,8 @@ app.get('/producers/:id/wines', async (req, res) => {
 })
 
 ////// USER-ENDPOINTS /////////
-//////////////////////////////
 
-//POST: registration endpoint (creates user)
+//POST: registration endpoint (create user)
 app.post('/users', async (req, res) => {
   try {
     const { name, surname, email, password } = req.body
@@ -294,10 +288,7 @@ app.post('/sessions', async (req, res) => {
   }
 })
 
-// POST: logout user (this produces an error 401 'unauthorized' in the console (why? is it because accesstoken is removed before checked?), 
-// but user is still logged out even though the fetch don't seem to work because I remove accesstoken etc. in frontend.
-// So do I really need an endpoint in the backend to logout? Or is it enought if I remove accesstoken etc. in frontend?)
-// In Postman it works to logout with accesstoken in headers though...
+// POST: logout user 
 app.post('/users/logout', authenticateUser)
 app.post('/users/logout', async (req, res) => {
   try {
@@ -368,9 +359,7 @@ app.put('/users/:id/favorites', async (req, res) => {
 
   try {
     const { _id } = req.body
-    //console.log('wine:', typeof _id, _id, 'user id:', id)
     const selectedWine = await Wine.findById( _id ) // Find the wine the user wants to add. 
-    //console.log('selectedWine', selectedWine)
     await User.updateOne(
       { _id: id }, 
       {$push: {favoriteWines: selectedWine }} //push the selected wine into the favoriteWines-array
@@ -389,9 +378,10 @@ app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
 
-///    TO DO:     ///
-//endpoint for user to rate a wine.
-//endpoint to GET users rated wines.
-//(endpoint to add a new wine to the database/API? NOT MVP!)
-//PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)???
+///   LEFT TO DO (NOT MVP):     ///
+//endpoint for user to rate a wine.(NOT MVP)
+//endpoint to GET users rated wines.(NOT MVP)
+//endpoint to add a new wine to the database. (NOT MVP)
+//endpoint where user can post a suggestion to add a new wine (save in a new model, and I can add it to wines if approved)(NOT MVP)
+//PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)(NOT MVP)
 //use mongoose updateOne? Check $ Set operator in mongo DB also (see Q&A wed week 21)
