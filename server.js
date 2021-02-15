@@ -351,7 +351,7 @@ app.delete('/users/:id/favorites', async (req, res) => {
   }
 })
 
-// PUT: endpoint to add favorite wine for a logged-in user:
+// PUT: endpoint to add favorite wine for a logged-in user (used with the first way where I don't have a separate model for RatedWines)
 // UPDATES the user and adds the selected wine to the favoriteWines-array for that user.
 app.put('/users/:id/favorites', authenticateUser) 
 app.put('/users/:id/favorites', async (req, res) => {
@@ -367,25 +367,43 @@ app.put('/users/:id/favorites', async (req, res) => {
       res.status(200).json(selectedWine) 
   } catch (err) {
     res.status(404).json({
-      message: 'Could not add wine. User must be logged in to add a favorite wine.',
+      message: 'Could not add favorite wine. User must be logged in to add a favorite wine.',
       errors: { message: err.message, error: err }
     })
   }
 })
 
-
-// PUT-endpoint for user to rate a wine:
+// NOT FULLY WORKING YET! This adds one new instance everytime I rate a wine, regardless of wineId
+// PUT-endpoint for user to rate a wine (Without a separate model/collection for rated wines):
 app.put('/users/:id/rated', authenticateUser)
 app.put('/users/:id/rated', async (req, res) => {
   const { id } = req.params
   try {
     const wineId = req.body.wineId
-    const selectedWine = await Wine.findById( wineId )
     const rating = req.body.rating
-    await User.updateOne(
-      { _id: id},
-      {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
-    )
+    const selectedWine = await Wine.findById( wineId )
+    console.log('selectedWine', selectedWine)
+    // const currentUser = await User.findOne({ _id: id })
+    // console.log('currentUser', currentUser)
+    // const usersRatedWines = await currentUser.ratedWines
+    // console.log('userRatedWines', usersRatedWines)
+
+    const userRatingsArray = await req.user.ratedWines //--> shows users rated wines
+    console.log('userRatingsArray:', userRatingsArray)
+    // const getCurrentRatedWines = await Wine.find({ _id: userRatingsArray }).populate('producer') 
+    // const checkIfCurrentWineIsRated = await Wine.find({ _id: userRatingsArray.wineId })
+    console.log(userRatingsArray.includes(selectedWine._id)) // --> false
+    if (userRatingsArray.includes(selectedWine)) {
+      await User.updateOne(
+        { _id: id},
+        {$set: { rating: req.body.rating }}
+      )
+    } else { // This always happens, so a new instance is added each time I add a rating (several instances/ratings for the same wine)
+      await User.updateOne(
+        { _id: id}, 
+        {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
+      )
+    }
     res.status(200).json(selectedWine)
   } catch (err) {
     res.status(404).json({
@@ -393,22 +411,37 @@ app.put('/users/:id/rated', async (req, res) => {
       errors: { message: err.message, error: err }
     })
   }
-  
-
 })
 
-// ratedWines: [ //NOT IMPLEMENTED YET! This will show as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
-//     { 
-//       rating: {
-//         type: Number,
-//         enum: [1, 2, 3, 4, 5]
-//       },
-//       wineId: {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'Wines'
-//       }
+// NOT IN USE: PUT-endpoint to update rating of a wine for a logged-in user (if I would use a separate collection for rated Wines):
+// app.put('/users/:id/rated', authenticateUser)
+// app.put('/users/:id/rated', async (req, res) => {
+//   // const { id } = req.params
+//   try {
+//     const { userId, wineId, rating } = req.body
+//     const savedWine = await RatedWines.findOne({ userId: req.body.userId, wineId: req.body.wineId })
+//     if (savedWine) {
+//       const updated = await RatedWines.findOneAndUpdate({ userId: req.body.userId, wineId: req.body.wineId }, req.body, { new: true })
+//       res.status(201).jsoon(updated)
+//     } else {
+//       const ratedWine = new RatedWines({ userId, wineId, rating })
+//       const saved = await ratedWine.save()
+//       await User.findOneAndUpdate(
+//         { _id: userId},
+//         { $push: { userRatedWines: saved }}
+//       )
+//       res.status(201).json(saved)
 //     }
-//   ],
+//   } catch (err) {
+//     res.status(404).json({
+//       message: 'Could not rate wine. User must be logged in to rate a wine.',
+//       errors: { message: err.message, error: err }
+//     })
+//   }
+// })
+
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
