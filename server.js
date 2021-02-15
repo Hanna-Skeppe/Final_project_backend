@@ -373,6 +373,42 @@ app.put('/users/:id/favorites', async (req, res) => {
   }
 })
 
+
+// PUT-endpoint for user to rate a wine:
+app.put('/users/:id/rated', authenticateUser)
+app.put('/users/:id/rated', async (req, res) => {
+  const { id } = req.params
+  try {
+    const wineId = req.body.wineId
+    const selectedWine = await Wine.findById( wineId )
+    const rating = req.body.rating
+    await User.updateOne(
+      { _id: id},
+      {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
+    )
+    res.status(200).json(selectedWine)
+  } catch (err) {
+    res.status(404).json({
+      message: 'Could not rate wine. User must be logged in to rate a wine.',
+      errors: { message: err.message, error: err }
+    })
+  }
+  
+
+})
+
+// ratedWines: [ //NOT IMPLEMENTED YET! This will show as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
+//     { 
+//       rating: {
+//         type: Number,
+//         enum: [1, 2, 3, 4, 5]
+//       },
+//       wineId: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: 'Wines'
+//       }
+//     }
+//   ],
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
