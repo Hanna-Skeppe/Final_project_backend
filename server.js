@@ -12,7 +12,7 @@ import bcrypt from 'bcrypt'
 
 import wineData from './data/wines.json'
 import producersData from './data/producers.json'
-import { Wine, Producer, User } from './models/models'
+import { Wine, Producer, User, RatedWine } from './models/models'
 
 //default mongo-code:
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/hanna-final-project"
@@ -373,65 +373,38 @@ app.put('/users/:id/favorites', async (req, res) => {
   }
 })
 
-// NOT FULLY WORKING YET! This adds one new instance everytime I rate a wine, regardless of wineId
 // PUT-endpoint for user to rate a wine (Without a separate model/collection for rated wines):
-app.put('/users/:id/rated', authenticateUser)
-app.put('/users/:id/rated', async (req, res) => {
-  const { id } = req.params
-  try {
-    const wineId = req.body.wineId
-    const rating = req.body.rating
-    const selectedWine = await Wine.findById( wineId )
-    console.log('selectedWine', selectedWine)
-    // const currentUser = await User.findOne({ _id: id })
-    // console.log('currentUser', currentUser)
-    // const usersRatedWines = await currentUser.ratedWines
-    // console.log('userRatedWines', usersRatedWines)
-
-    const userRatingsArray = await req.user.ratedWines //--> shows users rated wines
-    console.log('userRatingsArray:', userRatingsArray)
-    // const getCurrentRatedWines = await Wine.find({ _id: userRatingsArray }).populate('producer') 
-    // const checkIfCurrentWineIsRated = await Wine.find({ _id: userRatingsArray.wineId })
-    console.log(userRatingsArray.includes(selectedWine._id)) // --> false
-    if (userRatingsArray.includes(selectedWine)) {
-      await User.updateOne(
-        { _id: id},
-        {$set: { rating: req.body.rating }}
-      )
-    } else { // This always happens, so a new instance is added each time I add a rating (several instances/ratings for the same wine)
-      await User.updateOne(
-        { _id: id}, 
-        {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
-      )
-    }
-    res.status(200).json(selectedWine)
-  } catch (err) {
-    res.status(404).json({
-      message: 'Could not rate wine. User must be logged in to rate a wine.',
-      errors: { message: err.message, error: err }
-    })
-  }
-})
-
-// NOT IN USE: PUT-endpoint to update rating of a wine for a logged-in user (if I would use a separate collection for rated Wines):
+// NOT FULLY WORKING YET! This adds one new instance everytime I rate a wine, regardless of wineId
 // app.put('/users/:id/rated', authenticateUser)
 // app.put('/users/:id/rated', async (req, res) => {
-//   // const { id } = req.params
+//   const { id } = req.params
 //   try {
-//     const { userId, wineId, rating } = req.body
-//     const savedWine = await RatedWines.findOne({ userId: req.body.userId, wineId: req.body.wineId })
-//     if (savedWine) {
-//       const updated = await RatedWines.findOneAndUpdate({ userId: req.body.userId, wineId: req.body.wineId }, req.body, { new: true })
-//       res.status(201).jsoon(updated)
-//     } else {
-//       const ratedWine = new RatedWines({ userId, wineId, rating })
-//       const saved = await ratedWine.save()
-//       await User.findOneAndUpdate(
-//         { _id: userId},
-//         { $push: { userRatedWines: saved }}
+//     const wineId = req.body.wineId
+//     const rating = req.body.rating
+//     const selectedWine = await Wine.findById( wineId )
+//     console.log('selectedWine', selectedWine)
+//     // const currentUser = await User.findOne({ _id: id })
+//     // console.log('currentUser', currentUser)
+//     // const usersRatedWines = await currentUser.ratedWines
+//     // console.log('userRatedWines', usersRatedWines)
+
+//     const userRatingsArray = await req.user.ratedWines //--> shows users rated wines
+//     console.log('userRatingsArray:', userRatingsArray)
+//     // const getCurrentRatedWines = await Wine.find({ _id: userRatingsArray }).populate('producer') 
+//     // const checkIfCurrentWineIsRated = await Wine.find({ _id: userRatingsArray.wineId })
+//     console.log(userRatingsArray.includes(selectedWine._id)) // --> false
+//     if (userRatingsArray.includes(selectedWine)) {
+//       await User.updateOne(
+//         { _id: id},
+//         {$set: { rating: req.body.rating }}
 //       )
-//       res.status(201).json(saved)
+//     } else { // This always happens, so a new instance is added each time I add a rating (several instances/ratings for the same wine)
+//       await User.updateOne(
+//         { _id: id}, 
+//         {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
+//       )
 //     }
+//     res.status(200).json(selectedWine)
 //   } catch (err) {
 //     res.status(404).json({
 //       message: 'Could not rate wine. User must be logged in to rate a wine.',
@@ -440,6 +413,71 @@ app.put('/users/:id/rated', async (req, res) => {
 //   }
 // })
 
+// NOT IN USE: this did not work (findOneAndUpdate did not work on user ratedWines)
+// const ratedWine = await User.ratedWines.findOne({ wineId: req.body.wineId, }) 
+//     console.log('ratedWine:', ratedWine)
+//     console.log('userRatingsArray:', userRatingsArray) //--> shows users rated wines
+//     if (ratedWine) {
+//       const updated = await User.ratedWines.findOneAndUpdate({ wineId: req.body.wineId, rating: req.body.rating })
+//       res.status(201).json(updated)
+//     } else {
+//       await User.updateOne(
+//         {_id: id},
+//         {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
+//       )
+//     }
+//     res.status(200).json(selectedWine)
+//     console.log(updated)
+
+// NOT IN USE: PUT-endpoint to update rating of a wine for a logged-in user (if I would use a separate collection for rated Wines):
+app.put('/users/:userId/rated', authenticateUser)
+app.put('/users/:userId/rated', async (req, res) => {
+  // const { id } = req.params
+  try {
+    const { userId, wineId, rating } = req.body
+    //if several users have rated the same wine, it will find the one with the right userId
+    const savedWine = await RatedWine.findOne({ userId: req.body.userId, wineId: req.body.wineId })
+    // if there is a saved rated wine, update it, else add it to RatedWine & User:
+    if (savedWine) {
+      const updated = await RatedWine.findOneAndUpdate({ userId: req.body.userId, wineId: req.body.wineId }, req.body, { new: true })
+      res.status(201).json(updated)
+    } else {
+      const ratedWine = new RatedWine({ userId, wineId, rating })
+      const saved = await ratedWine.save()
+      await User.findOneAndUpdate(
+        { _id: userId},
+        { $push: { userRatedWines: saved }}
+      )
+      res.status(201).json(saved)
+    }
+  } catch (err) {
+    res.status(404).json({
+      message: 'Could not rate wine. User must be logged in to rate a wine.',
+      errors: { message: err.message, error: err }
+    })
+  }
+})
+
+// Get list of all users rated wines:
+//Headers in Postman: key: Authorization, value: Access token. 
+app.get('/users/:userId/rated', authenticateUser)
+app.get('/users/:userId/rated', async (req, res) => {
+  try {
+    const userId = req.params.userId
+    if (userId != req.user._id) {
+      throw 'Access denied'
+    }
+    const ratedWines = await RatedWine.find({ userId: userId })
+    console.log('ratedWines', ratedWines) //--> shows object(s) from ratedWine-collection (_id, userId, wineId, rating)
+    // await Wine.find({ _id: saved})
+    res.status(201).json(ratedWines)
+  } catch (err) {
+    res.status(404).json({
+      message: 'Could not get rated wines. User must be logged in to see rated wines.',
+      errors: { message: err.message, error: err }
+    })
+  }
+})
 
 
 // Start the server

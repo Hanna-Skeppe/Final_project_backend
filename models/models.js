@@ -94,21 +94,21 @@ export const Producer = new mongoose.model('Producer', {
   },
 })
 
-//RatedWines-model:
-// export const RatedWines = new mongoose.model('RatedWines', {
-//   userId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'User'
-//   },
-//   wineId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Wines'
-//   },
-//   rating: {
-//     type: Number,
-//     enum: [1, 2, 3, 4, 5]
-//   }
-// })
+// RatedWines-model:
+export const RatedWine = new mongoose.model('RatedWine', {
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  wineId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wines'
+  },
+  rating: {
+    type: Number,
+    enum: [1, 2, 3, 4, 5]
+  }
+})
 
 //User-schema:
 export const userSchema = new mongoose.Schema({
@@ -150,25 +150,23 @@ export const userSchema = new mongoose.Schema({
       ref: 'Wines'
     }
   ],
-  // userRatedWines: [{
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'RatedWines' // Should rated wines really be a separate collection? see lecture 18/1 @ 1h 58 mins.
-  // }]
-  ratedWines: [ //NOT IMPLEMENTED CORRECTLY YET! This shows as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
-    {  // se also Q&A session 1 week 22 with Van @ ca 1h 50 mins forward.
-      rating: {
-        type: Number,
-        enum: [1, 2, 3, 4, 5]
-      },
-      wineId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Wines'
-      }
-    }
-  ],
+  userRatedWines: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'RatedWines' // Should rated wines really be a separate collection? see lecture 18/1 @ 1h 58 mins.
+  }]
+  // ratedWines: [ //NOT IMPLEMENTED CORRECTLY YET! This shows as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
+  //   {  // se also Q&A session 1 week 22 with Van @ ca 1h 50 mins forward.
+  //     rating: {
+  //       type: Number,
+  //       enum: [1, 2, 3, 4, 5]
+  //     },
+  //     wineId: {
+  //       type: mongoose.Schema.Types.ObjectId,
+  //       ref: 'Wines'
+  //     }
+  //   }
+  // ],
 }) 
-
-
 
 // Middleware to hash password before new user is saved:
 userSchema.pre('save', async function (next) {
