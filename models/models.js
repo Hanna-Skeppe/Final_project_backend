@@ -66,7 +66,7 @@ export const Wine = new mongoose.model('Wine', {
   ratings_count: {
     type: Number
   },
-  // text_reviews: { //Maybe include text-reviews later on
+  // text_reviews: { //Maybe add text-reviews later on
   //   type: Number
   // }
 })
@@ -105,8 +105,7 @@ export const RatedWine = new mongoose.model('RatedWine', {
     ref: 'Wines'
   },
   rating: {
-    type: Number,
-    enum: [1, 2, 3, 4, 5]
+    type: Number
   }
 })
 
@@ -145,27 +144,15 @@ export const userSchema = new mongoose.Schema({
   //   default: false
   // },
   favoriteWines: [
-    { //This will show as an array of id:s of wines from 'Wine' in each user (Q&A 18/1 @1:56)
+    { 
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Wines'
     }
   ],
-  userRatedWines: [{
+  userRatedWines: [{ // see lecture 18/1 @ 1h 58 mins.
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'RatedWines' // Should rated wines really be a separate collection? see lecture 18/1 @ 1h 58 mins.
+    ref: 'RatedWines' 
   }]
-  // ratedWines: [ //NOT IMPLEMENTED CORRECTLY YET! This shows as an array of objects: (rating & wineId from 'Wine') (Q&A 18/1 @1:58)
-  //   {  // se also Q&A session 1 week 22 with Van @ ca 1h 50 mins forward.
-  //     rating: {
-  //       type: Number,
-  //       enum: [1, 2, 3, 4, 5]
-  //     },
-  //     wineId: {
-  //       type: mongoose.Schema.Types.ObjectId,
-  //       ref: 'Wines'
-  //     }
-  //   }
-  // ],
 }) 
 
 // Middleware to hash password before new user is saved:

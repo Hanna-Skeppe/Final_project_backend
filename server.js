@@ -5,16 +5,12 @@ import mongoose from 'mongoose'
 import endpoints from "express-list-endpoints"
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
-// import dotenv from 'dotenv'
-// import cloudinaryFramework from 'cloudinary'
-// import multer from 'multer'
-// import cloudinaryStorage from 'multer-storage-cloudinary'
 
 import wineData from './data/wines.json'
 import producersData from './data/producers.json'
 import { Wine, Producer, User, RatedWine } from './models/models'
 
-//default mongo-code:
+//Default mongo-code:
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/hanna-final-project"
 mongoose.connect(mongoUrl, {
   useNewUrlParser: true,
@@ -23,10 +19,7 @@ mongoose.connect(mongoUrl, {
 })
 mongoose.Promise = Promise
 
-//For setting upp .env (pictures):
-// dotenv.config()
-
-//start express server 
+//Start express server 
 const port = process.env.PORT || 8080
 const app = express()
 
@@ -36,32 +29,6 @@ const GET_ENDPOINTS_ERROR = 'Error: No endpoints found'
 // Middlewares to enable cors and json body parsing
 app.use(cors())
 app.use(bodyParser.json())
-
-// Might use this code later if I add option to post picture (when user suggest a new wine to be added)
-//Setting up cloudinary for pictures in API:
-//I only need this if I am going to upload pictures.
-// const cloudinary = cloudinaryFramework.v2
-// cloudinary.config({
-//   cloud_name: 'dtgjz72kj',
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET
-// })
-
-// const storage = cloudinaryStorage({
-//   cloudinary,
-//   params: {
-//     folder: 'winepictures', //the folder in cloudinary
-//     allowedFormats: ['jpg', 'png', 'WebP', 'gif'],
-//     transformation: [{ width: 500, height: 500, crop: 'limit' }],
-//   },
-// })
-// const parser = multer({ storage })
-
-// NOT SURE ABOUT IF/WHY I SHOULD INCLUDE THIS ENDPOINT 
-// I don't want to post pictures (if I don't add a possibility to add a wine), only include them in the API.
-// app.post('/winepictures', parser.single('image'), async (req, res) => {
-//   res.json({ imageUrl: req.file.path, imageId: req.file.filename })
-// })
 
 //Error if database is down:
 app.use((req, res, next) => {
@@ -89,8 +56,8 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// See lecture 2 week 18 @ 6:13 on how to populate database with several collections with relations!
 //POPULATE DATABASE with several collections: seed database: (RESET_DATABASE=true npm run dev)
+// See lecture 2 week 18 @ 6:13 on how to populate database with several collections with relations
 if (process.env.RESET_DATABASE) {
   const populateDatabase = async () => {
     //Clear current content:
@@ -123,7 +90,8 @@ if (process.env.RESET_DATABASE) {
 }
 
 ////// ROUTES / ENDPOINTS ////////
-// ROOT (endpoints):
+
+// ROOT (list of endpoints):
 app.get('/', (req, res) => {
   if (res) {
     res.status(200).send(endpoints(app))
@@ -132,10 +100,9 @@ app.get('/', (req, res) => {
   }
 })
 
-// GET All wines in database:
+// GET All wines:
 // Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
-// Example: 
-// http://localhost:8080/wines?query=white&sort=average_price_asc
+// Example: http://localhost:8080/wines?query=white&sort=average_price_asc
 // see week 17 lecture 1 on filtering
 app.get('/wines', async (req, res) => {
   
@@ -162,7 +129,7 @@ app.get('/wines', async (req, res) => {
   
   const allWines = await Wine.find({
     $or: [ 
-    { name: new RegExp(query, 'i') }, // queries case-insensitive. 
+    { name: new RegExp(query, 'i') },
     { country: new RegExp(query, 'i') },
     { origin: new RegExp(query, 'i') },
     { grape: new RegExp(query, 'i') },
@@ -179,7 +146,7 @@ app.get('/wines', async (req, res) => {
   }
 })
 
-//GET single wine by id (single wine object): 
+//GET single wine by id (not used in frontend yet): 
 app.get('/wines/:id', async (req, res) => {
   const { id } = req.params
   try {
@@ -268,7 +235,6 @@ app.post('/sessions', async (req, res) => {
     const user = await User.findOne({ email })
     if (user && bcrypt.compareSync(password, user.password)) {
       user.accessToken = crypto.randomBytes(128).toString('hex')
-
       const updatedUser = await user.save()
       res.status(200).json({
         userId: updatedUser._id,
@@ -276,7 +242,6 @@ app.post('/sessions', async (req, res) => {
         name: updatedUser.name,
         surname: updatedUser.surname
       })
-
     } else {
       throw 'User not found'
     }
@@ -304,10 +269,8 @@ app.post('/users/logout', async (req, res) => {
 })
 
 //GET: endpoint to get users saved favoriteWines
-//Headers in Postman: key: Authorization, value: Access token. 
 app.get('/users/:id/favorites', authenticateUser)
 app.get('/users/:id/favorites', async (req, res) => {
-  
   try {
     const userId = req.params.id
     if (userId != req.user._id) {
@@ -335,7 +298,6 @@ app.delete('/users/:id/favorites', async (req, res) => {
       throw 'Access denied'
     }
     const { _id } = req.body 
-    console.log(_id)
     const selectedWine = await Wine.findById(_id) // Find the wine the user wants to remove
     console.log('selectedWine', selectedWine) // this prints the selected wine to delete
     await User.updateOne(
@@ -351,12 +313,10 @@ app.delete('/users/:id/favorites', async (req, res) => {
   }
 })
 
-// PUT: endpoint to add favorite wine for a logged-in user (used with the first way where I don't have a separate model for RatedWines)
-// UPDATES the user and adds the selected wine to the favoriteWines-array for that user.
+// PUT: endpoint to add favorite wine for a logged-in user
 app.put('/users/:id/favorites', authenticateUser) 
 app.put('/users/:id/favorites', async (req, res) => {
   const { id } = req.params 
-
   try {
     const { _id } = req.body
     const selectedWine = await Wine.findById( _id ) // Find the wine the user wants to add. 
@@ -373,69 +333,12 @@ app.put('/users/:id/favorites', async (req, res) => {
   }
 })
 
-// PUT-endpoint for user to rate a wine (Without a separate model/collection for rated wines):
-// NOT FULLY WORKING YET! This adds one new instance everytime I rate a wine, regardless of wineId
-// app.put('/users/:id/rated', authenticateUser)
-// app.put('/users/:id/rated', async (req, res) => {
-//   const { id } = req.params
-//   try {
-//     const wineId = req.body.wineId
-//     const rating = req.body.rating
-//     const selectedWine = await Wine.findById( wineId )
-//     console.log('selectedWine', selectedWine)
-//     // const currentUser = await User.findOne({ _id: id })
-//     // console.log('currentUser', currentUser)
-//     // const usersRatedWines = await currentUser.ratedWines
-//     // console.log('userRatedWines', usersRatedWines)
-
-//     const userRatingsArray = await req.user.ratedWines //--> shows users rated wines
-//     console.log('userRatingsArray:', userRatingsArray)
-//     // const getCurrentRatedWines = await Wine.find({ _id: userRatingsArray }).populate('producer') 
-//     // const checkIfCurrentWineIsRated = await Wine.find({ _id: userRatingsArray.wineId })
-//     console.log(userRatingsArray.includes(selectedWine._id)) // --> false
-//     if (userRatingsArray.includes(selectedWine)) {
-//       await User.updateOne(
-//         { _id: id},
-//         {$set: { rating: req.body.rating }}
-//       )
-//     } else { // This always happens, so a new instance is added each time I add a rating (several instances/ratings for the same wine)
-//       await User.updateOne(
-//         { _id: id}, 
-//         {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
-//       )
-//     }
-//     res.status(200).json(selectedWine)
-//   } catch (err) {
-//     res.status(404).json({
-//       message: 'Could not rate wine. User must be logged in to rate a wine.',
-//       errors: { message: err.message, error: err }
-//     })
-//   }
-// })
-
-// NOT IN USE: this did not work (findOneAndUpdate did not work on user ratedWines)
-// const ratedWine = await User.ratedWines.findOne({ wineId: req.body.wineId, }) 
-//     console.log('ratedWine:', ratedWine)
-//     console.log('userRatingsArray:', userRatingsArray) //--> shows users rated wines
-//     if (ratedWine) {
-//       const updated = await User.ratedWines.findOneAndUpdate({ wineId: req.body.wineId, rating: req.body.rating })
-//       res.status(201).json(updated)
-//     } else {
-//       await User.updateOne(
-//         {_id: id},
-//         {$push: {ratedWines: {rating: rating, wineId: selectedWine}}}
-//       )
-//     }
-//     res.status(200).json(selectedWine)
-//     console.log(updated)
-
-// NOT IN USE: PUT-endpoint to update rating of a wine for a logged-in user (if I would use a separate collection for rated Wines):
+//PUT-endpoint to update rating of a wine:
 app.put('/users/:userId/rated', authenticateUser)
 app.put('/users/:userId/rated', async (req, res) => {
-  // const { id } = req.params
   try {
     const { userId, wineId, rating } = req.body
-    //if several users have rated the same wine, it will find the one with the right userId
+    //if several users have rated the same wine, find the one with the right userId
     const savedWine = await RatedWine.findOne({ userId: req.body.userId, wineId: req.body.wineId })
     // if there is a saved rated wine, update it, else add it to RatedWine & User:
     if (savedWine) {
@@ -458,8 +361,7 @@ app.put('/users/:userId/rated', async (req, res) => {
   }
 })
 
-// Get list of all users rated wines:
-//Headers in Postman: key: Authorization, value: Access token. 
+// GET-endpoint to get users rated wines:
 app.get('/users/:userId/rated', authenticateUser)
 app.get('/users/:userId/rated', async (req, res) => {
   try {
@@ -468,8 +370,6 @@ app.get('/users/:userId/rated', async (req, res) => {
       throw 'Access denied'
     }
     const ratedWines = await RatedWine.find({ userId: userId })
-    console.log('ratedWines', ratedWines) //--> shows object(s) from ratedWine-collection (_id, userId, wineId, rating)
-    // await Wine.find({ _id: saved})
     res.status(201).json(ratedWines)
   } catch (err) {
     res.status(404).json({
@@ -479,16 +379,12 @@ app.get('/users/:userId/rated', async (req, res) => {
   }
 })
 
-
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
 
 ///   LEFT TO DO (NOT MVP):     ///
-//endpoint for user to rate a wine.(NOT MVP)
-//endpoint to GET users rated wines.(NOT MVP)
 //endpoint to add a new wine to the database. (NOT MVP)
 //endpoint where user can post a suggestion to add a new wine (save in a new model, and I can add it to wines if approved)(NOT MVP)
 //PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)(NOT MVP)
-//use mongoose updateOne? Check $ Set operator in mongo DB also (see Q&A wed week 21)
