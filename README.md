@@ -1,7 +1,8 @@
 # Final Project Backend
 
-This project includes the packages and babel setup for an express server, and is just meant to make things a little simpler to get up and running with.
+This is the backend to my final project at Technigo Bootcamp. 
+It is an API with Natural wines that is connected to a Mongo DB.
 
-## Getting started
+Available endpoints can be found here: 
+https://natural-wines-api.herokuapp.com/
 
-Install dependencies with `npm install`, then start the server by running `npm run dev`
