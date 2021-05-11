@@ -1,13 +1,10 @@
 import express from 'express'
-import bodyParser from 'body-parser'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import endpoints from "express-list-endpoints"
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 
-import wineData from './data/wines.json'
-import producersData from './data/producers.json'
 import { Wine, Producer, User, RatedWine } from './models/models'
 
 //Default mongo-code:
@@ -26,11 +23,10 @@ const app = express()
 //Error-messages:
 const GET_ENDPOINTS_ERROR = 'Error: No endpoints found'
 
-// Middlewares to enable cors and json body parsing
+// Middlewares 
 app.use(cors())
-app.use(bodyParser.json())
+app.use(express.json());
 
-//Error if database is down:
 app.use((req, res, next) => {
   if (mongoose.connection.readyState === 1) {
     next()
@@ -56,38 +52,7 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-//POPULATE DATABASE with several collections: seed database: (RESET_DATABASE=true npm run dev)
-// See lecture 2 week 18 @ 6:13 on how to populate database with several collections with relations
-if (process.env.RESET_DATABASE) {
-  const populateDatabase = async () => {
-    //Clear current content:
-    await Wine.deleteMany()
-    await Producer.deleteMany()
 
-    //Declare empty array in which later on will 
-    //store all producers from producers.json (from Producer-model)
-    let producers = []
-
-    producersData.forEach(async (item) => {
-      const newProducer = new Producer(item);
-
-      //push each new producer to array 'producers' & save:
-      producers.push(newProducer)
-      await newProducer.save();
-    })
-
-    wineData.forEach(async wineItem => {
-      const newWine = new Wine({
-        ...wineItem,
-        producer: producers.find(
-          (item) => item.producer_name === wineItem.producer
-        )
-      });
-      await newWine.save();
-    })
-  }
-  populateDatabase();
-}
 
 ////// ROUTES / ENDPOINTS ////////
 
@@ -100,13 +65,9 @@ app.get('/', (req, res) => {
   }
 })
 
-// GET All wines:
-// Query on: name, country, origin, grape, type. Sort on: name, average rating and average price 
-// Example: http://localhost:8080/wines?query=white&sort=average_price_asc
-// see week 17 lecture 1 on filtering
 app.get('/wines', async (req, res) => {
   
-  const { query } = req.query
+  const { query } = req.query // Query on: name, country, origin, grape, type. 
   const sort = req.query.sort
 
   const sortedWines = sort => {
@@ -123,7 +84,7 @@ app.get('/wines', async (req, res) => {
     } else if (sort === 'average_price_desc') {
       return { average_price: 'desc'}
     } else {
-      return { name: 'asc'} //Default sorting
+      return { name: 'asc'} 
     }
   }
   
@@ -146,7 +107,6 @@ app.get('/wines', async (req, res) => {
   }
 })
 
-//GET single wine by id (not used in frontend yet): 
 app.get('/wines/:id', async (req, res) => {
   const { id } = req.params
   try {
@@ -160,16 +120,13 @@ app.get('/wines/:id', async (req, res) => {
   }
 })
 
-//GET all producers:
 app.get('/producers', async (req, res) => {
   const allProducers = await Producer.find(req.query)
   res.json(allProducers)
 })
 
-//GET a single producer;
 app.get('/producers/:id', async (req, res) => {
   const { id } = req.params
-  
   try {
     const singleProducer = await Producer.findById({ _id: id })
       if (!singleProducer) {
@@ -184,7 +141,6 @@ app.get('/producers/:id', async (req, res) => {
   }
 })
 
-//GET all wines from a specific producer:
 app.get('/producers/:id/wines', async (req, res) => {
   try {
     const producer = await Producer.findById(req.params.id)
@@ -204,7 +160,7 @@ app.get('/producers/:id/wines', async (req, res) => {
 
 ////// USER-ENDPOINTS /////////
 
-//POST: registration endpoint (create user)
+// create user
 app.post('/users', async (req, res) => {
   try {
     const { name, surname, email, password } = req.body
@@ -228,7 +184,7 @@ app.post('/users', async (req, res) => {
   }
 })
 
-//POST: login user
+// login user
 app.post('/sessions', async (req, res) => {
   try {
     const { email, password } = req.body
@@ -253,7 +209,7 @@ app.post('/sessions', async (req, res) => {
   }
 })
 
-// POST: logout user 
+
 app.post('/users/logout', authenticateUser)
 app.post('/users/logout', async (req, res) => {
   try {
@@ -268,7 +224,7 @@ app.post('/users/logout', async (req, res) => {
   }
 })
 
-//GET: endpoint to get users saved favoriteWines
+// get users favoriteWines
 app.get('/users/:id/favorites', authenticateUser)
 app.get('/users/:id/favorites', async (req, res) => {
   try {
@@ -276,8 +232,8 @@ app.get('/users/:id/favorites', async (req, res) => {
     if (userId != req.user._id) {
       throw 'Access denied'
     }
-    const userFavoritesArray = await req.user.favoriteWines //--> shows array of added wines (wine-id:s)
-    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer') // --> outputs the whole wine-objects in user favorites.
+    const userFavoritesArray = await req.user.favoriteWines
+    const getCurrentFavoriteWines = await Wine.find({ _id: userFavoritesArray }).populate('producer')
     res.status(200).json(getCurrentFavoriteWines)
   } catch (err) {
     res.status(403).json({
@@ -287,8 +243,7 @@ app.get('/users/:id/favorites', async (req, res) => {
   }
 })
 
-// DELETE-ENDPOINT: for logged in user to remove a favorite wine
-// UPDATES the user and removes the selected wine from the favoriteWines-array for that user.
+// remove a favorite wine
 app.delete('/users/:id/favorites', authenticateUser)
 app.delete('/users/:id/favorites', async (req, res) => {
   const { id } = req.params 
@@ -298,11 +253,10 @@ app.delete('/users/:id/favorites', async (req, res) => {
       throw 'Access denied'
     }
     const { _id } = req.body 
-    const selectedWine = await Wine.findById(_id) // Find the wine the user wants to remove
-    console.log('selectedWine', selectedWine) // this prints the selected wine to delete
+    const selectedWine = await Wine.findById(_id)
     await User.updateOne(
       {_id: id },
-      { $pull: { favoriteWines: { $in: [ selectedWine ] }}} // update user favoriteWines after delete
+      { $pull: { favoriteWines: { $in: [ selectedWine ] }}}
     )
     res.status(200).json(selectedWine) 
   } catch (err) {
@@ -313,16 +267,16 @@ app.delete('/users/:id/favorites', async (req, res) => {
   }
 })
 
-// PUT: endpoint to add favorite wine for a logged-in user
+// add favorite wine
 app.put('/users/:id/favorites', authenticateUser) 
 app.put('/users/:id/favorites', async (req, res) => {
   const { id } = req.params 
   try {
     const { _id } = req.body
-    const selectedWine = await Wine.findById( _id ) // Find the wine the user wants to add. 
+    const selectedWine = await Wine.findById( _id )
     await User.updateOne(
       { _id: id }, 
-      {$push: {favoriteWines: selectedWine }} //push the selected wine into the favoriteWines-array
+      {$push: {favoriteWines: selectedWine }}
       )
       res.status(200).json(selectedWine) 
   } catch (err) {
@@ -333,7 +287,7 @@ app.put('/users/:id/favorites', async (req, res) => {
   }
 })
 
-//PUT-endpoint to update rating of a wine:
+// update rating of a wine:
 app.put('/users/:userId/rated', authenticateUser)
 app.put('/users/:userId/rated', async (req, res) => {
   try {
@@ -361,7 +315,7 @@ app.put('/users/:userId/rated', async (req, res) => {
   }
 })
 
-// GET-endpoint to get users rated wines:
+// get rated wines:
 app.get('/users/:userId/rated', authenticateUser)
 app.get('/users/:userId/rated', async (req, res) => {
   try {
@@ -383,8 +337,3 @@ app.get('/users/:userId/rated', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
-
-///   LEFT TO DO (NOT MVP):     ///
-//endpoint to add a new wine to the database. (NOT MVP)
-//endpoint where user can post a suggestion to add a new wine (save in a new model, and I can add it to wines if approved)(NOT MVP)
-//PUT or PATCH (or POST) to update a wine (with postman, not on the frontend)(NOT MVP)

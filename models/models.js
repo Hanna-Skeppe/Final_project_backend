@@ -3,7 +3,6 @@ import { isEmail } from 'validator'
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-//Wine-model:
 export const Wine = new mongoose.model('Wine', {
   name: {
     type: String,
@@ -66,12 +65,8 @@ export const Wine = new mongoose.model('Wine', {
   ratings_count: {
     type: Number
   },
-  // text_reviews: { //Maybe add text-reviews later on
-  //   type: Number
-  // }
 })
 
-//Producer-model:
 export const Producer = new mongoose.model('Producer', {
   description: String,
   producer_name: {
@@ -94,7 +89,6 @@ export const Producer = new mongoose.model('Producer', {
   },
 })
 
-// RatedWines-model:
 export const RatedWine = new mongoose.model('RatedWine', {
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -109,7 +103,6 @@ export const RatedWine = new mongoose.model('RatedWine', {
   }
 })
 
-//User-schema:
 export const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -139,17 +132,13 @@ export const userSchema = new mongoose.Schema({
     type: String,
     default: () => crypto.randomBytes(128).toString('hex')
   },
-  // isAdmin: { // Maybe include later on: create admin account via Postman? lecture 18/1 @14:04.
-  //   type: Boolean,
-  //   default: false
-  // },
   favoriteWines: [
     { 
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Wines'
     }
   ],
-  userRatedWines: [{ // see lecture 18/1 @ 1h 58 mins.
+  userRatedWines: [{ 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'RatedWines' 
   }]
@@ -168,6 +157,6 @@ userSchema.pre('save', async function (next) {
   next()
 })
 
-//User-model:
+
 export const User = mongoose.model('User', userSchema)
 

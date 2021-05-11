@@ -1,7 +1,7 @@
 {
-  "name": "express-api-starter",
+  "name": "natural-wines-finder-api",
   "version": "1.0.0",
-  "description": "Starter project to get up and running with express quickly",
+  "description": "natural-wines-finder-app",
   "scripts": {
     "start": "babel-node server.js",
     "dev": "nodemon server.js --exec babel-node"
