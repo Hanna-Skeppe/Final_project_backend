@@ -38,21 +38,42 @@ app.use((req, res, next) => {
 });
 
 // Middleware to authenticate user:
+// Middleware to authenticate user:
 const authenticateUser = async (req, res, next) => {
   try {
-    const user = await User.findOne({
-      accessToken: req.header("Authorization"),
-    });
+    // Extract token from the Auth header
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      throw new Error("Token not provided");
+    }
+
+    const user = await User.findOne({ accessToken: token });
 
     if (!user) {
       throw USER_NOT_FOUND;
     }
     req.user = user;
-    next(); // Calling the next-function allows the protected endpoint to continue execution
+    next(); // Call the next function to continue with the protected endpoint
   } catch (err) {
-    res.status(401).json({ message: "User not fouund", errors: err.errors });
+    res.status(401).json({ message: "User not found", errors: err.message });
   }
 };
+// const authenticateUser = async (req, res, next) => {
+//   try {
+//     const user = await User.findOne({
+//       accessToken: req.header("Authorization"),
+//     });
+
+//     if (!user) {
+//       throw USER_NOT_FOUND;
+//     }
+//     req.user = user;
+//     next(); // Calling the next-function allows the protected endpoint to continue execution
+//   } catch (err) {
+//     res.status(401).json({ message: "User not fouund", errors: err.errors });
+//   }
+// };
 
 if (process.env.RESET_DATABASE) {
   const populateDatabase = async () => {
